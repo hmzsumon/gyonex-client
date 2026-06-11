@@ -1,0 +1,800 @@
+/* ══════════════════════════════════════════════════════════════════════════════
+   GYONEX — globals.css
+   ─ Fonts: Geist Sans + Geist Mono loaded via next/font/local in layout.tsx
+             (CSS variables: --font-geist-sans, --font-geist-mono)
+   ─ NO @import for fonts here — layout.tsx owns that entirely
+   ─ Third-party UI lib styles imported first so our rules win the cascade
+   ─ FIX: Removed wildcard font-family:inherit that caused icon font bleed
+══════════════════════════════════════════════════════════════════════════════ */
+
+/* ── 1. THIRD-PARTY STYLES (must come before Tailwind) ──────────────────── */
+@import "react-phone-input-2/lib/style.css";
+@import "react-alice-carousel/lib/alice-carousel.css";
+@import "slick-carousel/slick/slick.css";
+@import "slick-carousel/slick/slick-theme.css";
+
+/* ── 2. TAILWIND ─────────────────────────────────────────────────────────── */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   3. DESIGN TOKENS
+   --font-geist-sans / --font-geist-mono are injected by next/font on <body>.
+   We alias them here so components reference our own variables.
+══════════════════════════════════════════════════════════════════════════════ */
+:root {
+  /* ── Font stack (Geist from layout.tsx → safe system fallback) ─────────── */
+  --font-sans: var(--font-geist-sans), 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-geist-mono), 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+
+  /* ── Brand colours ─────────────────────────────────────────────────────── */
+  --color-bg:           #080C14;
+  --color-surface:      #0B1018;
+  --color-surface-2:    #0D1420;
+  --color-border:       rgba(255, 255, 255, 0.06);
+  --color-border-hover: rgba(255, 255, 255, 0.12);
+
+  --color-blue:         #3182F6;
+  --color-blue-dim:     #1a6fd4;
+  --color-blue-muted:   rgba(49, 130, 246, 0.08);
+  --color-green:        #1FE080;
+  --color-green-muted:  rgba(31, 224, 128, 0.08);
+  --color-orange:       #F97316;
+  --color-orange-muted: rgba(249, 115, 22, 0.08);
+  --color-red:          #EF4444;
+  --color-red-muted:    rgba(239, 68, 68, 0.08);
+  --color-amber:        #F59E0B;
+  --color-purple:       #8B5CF6;
+  --color-pink:         #EC4899;
+
+  /* ── Text hierarchy ────────────────────────────────────────────────────── */
+  --text-primary:   #E8ECF4;
+  --text-secondary: #C8D0E0;
+  --text-muted:     #6B7590;
+  --text-faint:     #3A4058;
+
+  /* ── Spacing / radius ──────────────────────────────────────────────────── */
+  --radius-sm:  8px;
+  --radius-md:  12px;
+  --radius-lg:  18px;
+  --radius-xl:  24px;
+  --radius-2xl: 32px;
+
+  /* ── Transitions ───────────────────────────────────────────────────────── */
+  --transition-fast: 0.15s ease;
+  --transition-base: 0.25s ease;
+  --transition-slow: 0.40s ease;
+
+  /* ── Shadcn / Tailwind theme (light) ───────────────────────────────────── */
+  --background:             0 0% 100%;
+  --foreground:             222.2 84% 4.9%;
+  --card:                   0 0% 100%;
+  --card-foreground:        222.2 84% 4.9%;
+  --popover:                0 0% 100%;
+  --popover-foreground:     222.2 84% 4.9%;
+  --primary:                222.2 47.4% 11.2%;
+  --primary-foreground:     210 40% 98%;
+  --secondary:              210 40% 96.1%;
+  --secondary-foreground:   222.2 47.4% 11.2%;
+  --muted:                  210 40% 96.1%;
+  --muted-foreground:       215.4 16.3% 46.9%;
+  --accent:                 210 40% 96.1%;
+  --accent-foreground:      222.2 47.4% 11.2%;
+  --destructive:            0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  --border:                 214.3 31.8% 91.4%;
+  --input:                  214.3 31.8% 91.4%;
+  --ring:                   222.2 84% 4.9%;
+  --radius:                 0.5rem;
+
+  /* Charts */
+  --chart-1: 12 76% 61%;
+  --chart-2: 173 58% 39%;
+  --chart-3: 197 37% 24%;
+  --chart-4: 43 74% 66%;
+  --chart-5: 27 87% 67%;
+
+  /* Sidebar */
+  --sidebar-background:         0 0% 98%;
+  --sidebar-foreground:         240 5.3% 26.1%;
+  --sidebar-primary:            240 5.9% 10%;
+  --sidebar-primary-foreground: 0 0% 98%;
+  --sidebar-accent:             240 4.8% 95.9%;
+  --sidebar-accent-foreground:  240 5.9% 10%;
+  --sidebar-border:             220 13% 91%;
+  --sidebar-ring:               217.2 91.2% 59.8%;
+
+  /* ── STB / Casino palette ──────────────────────────────────────────────── */
+  --stb-green-100:  13 77 0;
+  --stb-green-200:  3 97 80;
+  --stb-green-300:  146 234 59;
+  --stb-green-400:  15 33 28;
+  --stb-green-500:  0 73 59;
+  --stb-green-600:  22 49 42;
+  --stb-green-700:  0 51 42;
+  --stb-green-800:  0 41 33;
+  --stb-green-900:  0 33 27;
+  --stb-green-1000: 3 26 22;
+  --stb-green-dark: 15 37 32;
+  --stb-green:      0 161 118;
+
+  --stb-white-900:  255 247 227;
+  --stb-white-1000: 255 255 255;
+  --stb-black-900:  0, 26, 22;
+  --stb-black-1000: 0 0 0;
+
+  --stb-yellow-800:  255 207 51;
+  --stb-yellow-900:  229 167 73;
+  --stb-yellow-1000: 226 195 27;
+
+  --stb-bronze-1000: 178 158 110;
+
+  --stb-orange-600:  255 190 0;
+  --stb-orange-700:  255 126 54;
+  --stb-orange-800:  255 135 1;
+  --stb-orange-900:  255 147 50;
+  --stb-orange-1000: 224 66 27;
+
+  --stb-red-700:  77 33 0;
+  --stb-red-800:  92 24 0;
+  --stb-red-900:  183 19 30;
+  --stb-red-1000: 255 53 26;
+
+  --stb-gray-200:  239 249 247;
+  --stb-gray-300:  233 242 240;
+  --stb-gray-400:  209 224 220;
+  --stb-gray-500:  155 176 171;
+  --stb-gray-600:  121 143 137;
+  --stb-gray-900:  91 105 101;
+  --stb-gray-1000: 33 38 37;
+
+  --stb-purple-1000: 117 28 0;
+  --stb-brown-400:   120 65 0;
+  --stb-brown-500:   102 73 31;
+  --stb-bronth-800:  173 126 55;
+  --stb-gold:        229 167 73;
+
+  --stb-unique-color-1: 0 36 29;
+  --stb-unique-color-2: 0 26 22;
+  --stb-unique-color-3: 255 0 25;
+
+  --stb-default-error:   rgb(var(--stb-unique-color-3));
+  --stb-default-alert:   rgb(var(--stb-yellow-900));
+  --stb-default-success: rgb(var(--stb-green));
+
+  /* Google button */
+  --stb-google-btn-text:         rgb(31 31 31);
+  --stb-google-btn-text-disable: rgb(143 143 143);
+  --stb-google-btn:              rgb(255 255 255);
+  --stb-google-btn-hover:        rgb(238 238 238);
+  --stb-google-btn-press:        rgb(238 238 238);
+  --stb-google-btn-disable:      rgb(242 242 242);
+
+  /* Shadows */
+  --stb-shadow-green: rgb(var(--stb-green-400) / 0.6);
+  --stb-shadow-grey:  0 2px 0 rgb(var(--stb-black-1000) / 0.2);
+
+  /* STB Gradients */
+  --stb-gradient-green:     linear-gradient(#003027, #00271f);
+  --stb-gradient-green-100: linear-gradient(90deg, #00a300, #b1cc00);
+  --stb-gradient-green-200: linear-gradient(#00a300, #b1cc00);
+  --stb-gradient-green-300: linear-gradient(270deg, #93eb3b 0.01%, #62bf43 20.67%, #11a68d 100%);
+  --stb-gradient-green-400: linear-gradient(251.88deg, #234840 0%, #17332d 101.58%);
+  --stb-gradient-green-500: linear-gradient(
+    90deg,
+    rgb(var(--stb-green-500) / 0),
+    rgb(var(--stb-green-500)) 61.46%,
+    rgb(var(--stb-green-500) / 0)
+  );
+  --stb-gradient-green-600: linear-gradient(
+    90deg,
+    #142e27 0%,
+    rgb(20 46 39 / 0.8) 48.56%,
+    rgb(20 46 39 / 0.5) 69.86%,
+    rgb(20 46 39 / 0.1) 100%
+  );
+  --stb-gradient-green-700: linear-gradient(
+    rgb(var(--stb-green-700) / 0),
+    rgb(var(--stb-green-700)) 100%
+  );
+  --stb-gradient-green-800: linear-gradient(
+    270deg,
+    rgb(var(--stb-green-800)),
+    rgb(var(--stb-green-800) / 0) 100%
+  );
+  --stb-gradient-green-900: linear-gradient(
+    180deg,
+    rgb(0 51 42 / 0.2) 0%,
+    #00332a 100%
+  );
+  --stb-gradient-red:        linear-gradient(90deg, #f63548 2.45%, #ff9431 100.49%);
+  --stb-gradient-orange-100: linear-gradient(90deg, #f60019, #ff8800);
+  --stb-gradient-orange-200: linear-gradient(90deg, #ff6f00, #ffbf00);
+  --stb-gradient-orange:     linear-gradient(to right, #f63548 2.45%, #ff9431 100.49%);
+  --stb-gradient-gold:       linear-gradient(360deg, #8e500b 0%, #ffe175 71.35%, #f1d363 100%);
+
+  --stb-card-gradient:
+    radial-gradient(31.03% 30.25% at 50% 38.45%, #ccfff6 0%, rgb(204 255 246 / 0) 100%),
+    radial-gradient(43.97% 42.86% at 50% 38.45%, #ccfff6 0%, rgb(204 255 246 / 0) 100%);
+
+  --stb-shop-free-spin-gradient:
+    radial-gradient(18.63% 58.33% at 15.97% 50%, #d7fff8 0%, rgb(215 255 248 / 0) 100%),
+    radial-gradient(26.62% 83.33% at 15.97% 50%, rgb(204 255 246 / 0.6) 0%, rgb(204 255 246 / 0) 100%);
+
+  --stb-active-tab-gradient:
+    radial-gradient(50.36% 50% at 49.64% 100%, rgb(229 167 73 / 0.3) 0%, rgb(3 26 22 / 0) 100%),
+    radial-gradient(50.36% 100% at 49.64% 100%, rgb(229 167 73 / 0.15) 0%, rgb(229 167 73 / 0) 100%);
+
+  --stb-bonus-gradient: var(--stb-active-tab-gradient);
+
+  --stb-bonus-name-gradient:       linear-gradient(#ffa31a, #ffcf33 68.75%);
+  --stb-bonus-back-light-gradient: radial-gradient(50% 50% at 50% 50%, #f7ffe6 0%, rgb(247 255 230 / 0) 100%);
+  --stb-bonus-back-gradient:       linear-gradient(#f7ffe8, rgb(247 255 232 / 0) 100%);
+  --stb-bonus-bankid-gradient:     radial-gradient(46.84% 46.84% at 54.02% 48.85%, #ffb859 0%, rgb(255 184 89 / 0) 100%);
+
+  --stb-cashier-tab-gradient:
+    radial-gradient(50.36% 50% at 49.64% 100%, rgb(229 167 73 / 0.3) 0%, rgb(0 33 27 / 0) 100%),
+    radial-gradient(50.36% 100% at 49.64% 100%, rgb(229 167 73 / 0.15) 0%, rgb(229 167 73 / 0) 100%);
+
+  --stb-active-icon-gradient: linear-gradient(#fad14e 38.75%, #9f6010 90.62%, #f3b626 100%);
+
+  --stb-additional-card-gradient: radial-gradient(
+    69.1% 45.74% at 50% 35.56%, #ccfff6 0%, rgb(204 255 246 / 0) 100%
+  );
+
+  --stb-gradient-category-card:
+    linear-gradient(90deg, #334742 0%, #859994 49.49%, #334742 100%),
+    linear-gradient(90deg, #334742 0%, #859994 49.49%, #334742 100%),
+    linear-gradient(90deg, #b38848 0%, #d1ae69 22.66%, #f2d488 50.67%, #d1ae69 76.16%, #b38847 100.21%);
+
+  --stb-gradient-header: linear-gradient(to right, rgb(0 43 35), rgb(0 43 35 / 0) 100%);
+
+  /* Filters */
+  --stb-filter-white:  invert(100%) sepia(100%) saturate(0%) hue-rotate(336deg) brightness(101%) contrast(105%);
+  --stb-filter-black:  brightness(0);
+  --stb-filter-yellow: invert(100%) sepia(35%) saturate(5782%) hue-rotate(310deg) brightness(93%) contrast(87%);
+  --stb-filter-bronze: invert(48%) sepia(47%) saturate(534%) hue-rotate(357deg) brightness(97%) contrast(93%);
+  --stb-filter-gray:   invert(72%) sepia(13%) saturate(255%) hue-rotate(115deg) brightness(93%) contrast(90%);
+
+  /* Countdown */
+  --stb-countdown-l:               178 104 18;
+  --stb-countdown-s:               74 153 46;
+  --stb-countdown-inactive:        91 105 101;
+  --stb-countdown-stroke-l:        125 73 13;
+  --stb-countdown-stroke-s:        52 107 32;
+  --stb-countdown-stroke-inactive: 64 74 71;
+
+  /* Tournament */
+  --stb-tournament-dropdown-padding:               16px;
+  --stb-tournament-details-list-gap:               8px;
+  --stb-tournament-dropdown-grid-template-columns: none;
+  --stb-tournament-dropdown-container-gap:         24px;
+  --stb-tournament-description-padding:            16px;
+  --stb-tournament-description-details-gap:        12px;
+  --stb-tournament-banner-grid-template-columns:   186px 1fr;
+
+  /* Shop */
+  --stb-shop-page-grid-row-gap:          24px;
+  --stb-base-shop-card-height:           203px;
+  --stb-large-shop-card-height:          310px;
+  --stb-scroller-shop-card-width:        171px;
+  --stb-scroller-inner-row-gap:          12px;
+  --stb-shop-items-grid-gap:             6px;
+  --stb-bonus-crab-card-width:           240px;
+  --stb-freebets-columns:                2;
+  --stb-free-spins-columns:              1;
+  --stb-bonus-money-columns:             2;
+  --stb-bonus-crab-columns:              auto-fill;
+  --stb-bonus-crab-column-size:          minmax(var(--stb-bonus-crab-card-width), 1fr);
+  --stb-shop-freespin-image-aspect-ratio: 1.5 / 1;
+}
+
+/* ── Shadcn dark mode overrides ─────────────────────────────────────────── */
+.dark {
+  --background:             222.2 84% 4.9%;
+  --foreground:             210 40% 98%;
+  --card:                   222.2 84% 4.9%;
+  --card-foreground:        210 40% 98%;
+  --popover:                222.2 84% 4.9%;
+  --popover-foreground:     210 40% 98%;
+  --primary:                210 40% 98%;
+  --primary-foreground:     222.2 47.4% 11.2%;
+  --secondary:              217.2 32.6% 17.5%;
+  --secondary-foreground:   210 40% 98%;
+  --muted:                  217.2 32.6% 17.5%;
+  --muted-foreground:       215 20.2% 65.1%;
+  --accent:                 217.2 32.6% 17.5%;
+  --accent-foreground:      210 40% 98%;
+  --destructive:            0 62.8% 30.6%;
+  --destructive-foreground: 210 40% 98%;
+  --border:                 217.2 32.6% 17.5%;
+  --input:                  217.2 32.6% 17.5%;
+  --ring:                   212.7 26.8% 83.9%;
+  --chart-1: 220 70% 50%;
+  --chart-2: 160 60% 45%;
+  --chart-3: 30 80% 55%;
+  --chart-4: 280 65% 60%;
+  --chart-5: 340 75% 55%;
+  --sidebar-background:         240 5.9% 10%;
+  --sidebar-foreground:         240 4.8% 95.9%;
+  --sidebar-primary:            224.3 76.3% 48%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent:             240 3.7% 15.9%;
+  --sidebar-accent-foreground:  240 4.8% 95.9%;
+  --sidebar-border:             240 3.7% 15.9%;
+  --sidebar-ring:               217.2 91.2% 59.8%;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   4. BASE — font isolation + reset
+   ─ THE FIX: We explicitly set font-family on every element using the !important
+     flag so NO third-party icon font (slick, alice, revicons) can bleed through.
+     Then we carve out exceptions for the exact pseudo-elements that need glyphs.
+══════════════════════════════════════════════════════════════════════════════ */
+@layer base {
+  *, *::before, *::after {
+    @apply border-border;
+    box-sizing: border-box;
+    /* ── THE CORE FIX: force our font on every node so icon fonts can't bleed ── */
+    font-family: var(--font-sans) !important;
+  }
+
+  /* ── Carve out icon-font exceptions for carousel arrow/dot glyphs only ─── */
+  .slick-prev::before,
+  .slick-next::before {
+    font-family: 'slick' !important;
+  }
+
+  /* alice-carousel uses 'revicons' for its navigation buttons */
+  .alice-carousel__prev-btn [data-area]::after,
+  .alice-carousel__next-btn [data-area]::after {
+    font-family: 'revicons' !important;
+  }
+
+  /* ── Monospace elements ─────────────────────────────────────────────────── */
+  code, pre, kbd, samp, .font-mono {
+    font-family: var(--font-mono) !important;
+    font-variant-numeric: tabular-nums;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    background-color: #0B0D12;
+  }
+
+  body {
+    font-family: var(--font-sans) !important;
+    @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   5. FORM ELEMENTS
+══════════════════════════════════════════════════════════════════════════════ */
+input,
+textarea,
+select,
+button {
+  font-family: var(--font-sans) !important;
+}
+
+input,
+textarea {
+  outline: none;
+  box-shadow: none;
+  caret-color: #e6f2ef;
+}
+
+input::selection,
+textarea::selection {
+  background: rgba(49, 130, 246, 0.25);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   6. SCROLLBAR
+══════════════════════════════════════════════════════════════════════════════ */
+html {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+html::-webkit-scrollbar { display: none; }
+
+.scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+
+/* Opt-in thin scrollbar */
+.scrollbar-thin::-webkit-scrollbar       { width: 4px; height: 4px; }
+.scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 99px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   7. COMPONENT LAYER
+══════════════════════════════════════════════════════════════════════════════ */
+@layer components {
+
+  /* Primary CTA button */
+  .btn-gradient {
+    @apply inline-flex items-center justify-center gap-2
+           rounded-xl px-6 py-3 text-sm font-bold tracking-wide text-white
+           transition-all duration-200
+           disabled:opacity-50 disabled:cursor-not-allowed;
+    background: linear-gradient(135deg, var(--color-blue), var(--color-blue-dim));
+    box-shadow: 0 8px 32px rgba(49, 130, 246, 0.35);
+  }
+  .btn-gradient:hover:not(:disabled)  { opacity: 0.9; transform: scale(1.02); }
+  .btn-gradient:active:not(:disabled) { transform: scale(0.98); }
+  .btn-gradient:focus-visible         { outline: none; box-shadow: 0 0 0 3px rgba(49,130,246,0.4); }
+
+  /* Emerald variant */
+  .btn-gradient-primary {
+    @apply bg-gradient-to-r from-emerald-400 to-cyan-500 text-neutral-950;
+  }
+
+  /* Width helpers */
+  .btn-w-full { @apply w-full; }
+  .btn-flex-1 { @apply flex-1; }
+
+  /* Ghost / outline button */
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2
+           rounded-xl px-6 py-3 text-sm font-bold
+           transition-all duration-200;
+    color: var(--text-secondary);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  .btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  /* Surface card */
+  .card {
+    @apply rounded-2xl p-5 transition-all duration-200;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+  }
+  .card:hover { border-color: var(--color-border-hover); }
+
+  /* Badge */
+  .badge {
+    @apply inline-flex items-center gap-1.5
+           px-2.5 py-0.5 rounded-md
+           text-[10px] font-bold tracking-wider uppercase;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   8. UTILITY LAYER
+══════════════════════════════════════════════════════════════════════════════ */
+@layer utilities {
+  .text-balance { text-wrap: balance; }
+
+  /* Gradient text helpers */
+  .text-gradient-blue-green {
+    background: linear-gradient(135deg, var(--color-blue) 0%, var(--color-green) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .text-gradient-orange {
+    background: linear-gradient(135deg, var(--color-orange), #e06a0a);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Frosted glass surface */
+  .glass {
+    background: rgba(13, 20, 32, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+  }
+
+  /* Glow accent helpers */
+  .glow-blue   { box-shadow: 0 0 32px rgba(49, 130, 246, 0.25); }
+  .glow-green  { box-shadow: 0 0 32px rgba(31, 224, 128, 0.25); }
+  .glow-orange { box-shadow: 0 0 32px rgba(249, 115, 22,  0.25); }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   9. LEGACY COMPONENT CLASSES  (backward-compatible, untouched selectors)
+══════════════════════════════════════════════════════════════════════════════ */
+
+/* ── Login button ─────────────────────────────────────────────────────────── */
+.login_btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+  font-family: var(--font-sans) !important;
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: capitalize;
+  text-align: center;
+  color: #ffab49;
+  text-shadow: 0 2px 0 rgba(17, 0, 0, 0.3);
+  background: linear-gradient(180deg, #0f727c, #004e56);
+  border: 1px solid rgba(17, 134, 125, 0.5);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 2px 0 0 #003941;
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+}
+.login_btn:hover  { opacity: 0.9; }
+.login_btn:active { transform: translateY(1px); }
+
+/* ── Register button ──────────────────────────────────────────────────────── */
+.register-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+  font-family: var(--font-sans) !important;
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: capitalize;
+  text-align: center;
+  color: #b64100;
+  text-shadow: 0 2px 0 rgba(159, 52, 0, 0.2);
+  background: linear-gradient(180deg, #ffe600, #ffb800);
+  border: 1px solid rgba(255, 242, 166, 0.5);
+  border-radius: var(--radius-md);
+  box-shadow: inset 0 2px 0 1px #fff2a6, 0 2px 0 0 #b64100;
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+}
+.register-btn:hover  { opacity: 0.92; }
+.register-btn:active { transform: translateY(1px); }
+
+/* ── Submit button ────────────────────────────────────────────────────────── */
+.submit_btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  cursor: pointer;
+  user-select: none;
+  font-family: var(--font-sans) !important;
+  font-weight: 700;
+  text-transform: capitalize;
+  text-align: center;
+  color: #b64100;
+  text-shadow: 0 2px 0 rgba(159, 52, 0, 0.2);
+  background: linear-gradient(180deg, #ffe600, #ffb800);
+  border: 1px solid rgba(255, 242, 166, 0.5);
+  border-radius: var(--radius-md);
+  box-shadow: inset 0 2px 0 1px #fff2a6, 0 2px 0 0 #b64100;
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+}
+.submit_btn:hover  { opacity: 0.92; }
+.submit_btn:active { transform: translateY(1px); }
+
+/* ── Page wrappers ────────────────────────────────────────────────────────── */
+.wrapper {
+  display: flex;
+  width: 100%;
+  position: relative;
+  background: url("/images/bg/bg_01.jpg") no-repeat center center / cover;
+}
+.wrapper-2 {
+  display: flex;
+  width: 100%;
+  position: relative;
+  background: url("/bg/bg_02.jpg") no-repeat center center / cover;
+}
+
+/* ── Marquee / live ticker ────────────────────────────────────────────────── */
+.marquee {
+  z-index: 1;
+  color: #ffab49;
+  background: linear-gradient(180deg, #002632, #013239);
+  border: 1px solid rgba(17, 134, 125, 0.5);
+  border-radius: 60px;
+  box-shadow: 0 6px 20px 0 rgba(0, 0, 0, 0.8);
+}
+
+/* ── Form input ───────────────────────────────────────────────────────────── */
+.from_input {
+  overflow: hidden;
+  font-family: var(--font-sans) !important;
+  color: #23ffc8;
+  background: #002632;
+  border: 1px solid #006165;
+  border-radius: 10px;
+  box-shadow: 0 2px 0 0 #002631;
+  transition: border-color var(--transition-base);
+}
+.from_input:focus {
+  outline: none;
+  border-color: rgba(49, 130, 246, 0.5);
+}
+
+/* ── Sidebar menu item ────────────────────────────────────────────────────── */
+.sidebar_menu_item {
+  position: relative;
+  width: 100%;
+  height: 85px;
+  padding: 9px;
+  cursor: pointer;
+  user-select: none;
+  background: #003840;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  box-shadow: 0 1px 0 0 #001f23, inset 0 1px 0 0 #006165;
+  transition: background var(--transition-base), border-color var(--transition-base);
+}
+.sidebar_menu_item:hover {
+  background: #004850;
+  border-color: rgba(17, 134, 125, 0.3);
+}
+
+/* ── Game menu item ───────────────────────────────────────────────────────── */
+.game_menu_item {
+  cursor: pointer;
+  user-select: none;
+  background: #003840;
+  border: 1px solid transparent;
+  box-shadow: 0 1px 0 0 #001f23, inset 0 1px 0 0 #006165;
+  transition: background var(--transition-base);
+}
+.game_menu_item:hover { background: #004850; }
+
+/* ── Balance info card ────────────────────────────────────────────────────── */
+.balance-info {
+  z-index: 1;
+  background: linear-gradient(180deg, #002632, #013239);
+  border: 1px solid rgba(17, 134, 125, 0.5);
+  box-shadow: 0 6px 20px 0 rgba(0, 0, 0, 0.8);
+}
+
+.balance-info__frame {
+  opacity: 0.4;
+  background-image: radial-gradient(
+    var(--stb-circle-radius, 13px) at var(--stb-circle-radius, 13px) var(--stb-circle-radius, 13px),
+    rgb(var(--stb-bronth-800)) calc(100% - 1px),
+    transparent
+  );
+  background-position:
+    calc(var(--stb-circle-radius, 13px) * -1)
+    calc(var(--stb-circle-radius, 13px) * -1);
+  border: 1px solid rgb(var(--stb-bronth-800));
+  mask-image: radial-gradient(
+    var(--stb-circle-radius, 13px) at var(--stb-circle-radius, 13px) var(--stb-circle-radius, 13px),
+    transparent calc(100% - 1.5px),
+    rgb(var(--stb-black-1000)) calc(100% - 0.5px)
+  );
+  mask-position:
+    calc(var(--stb-circle-radius, 13px) * -1)
+    calc(var(--stb-circle-radius, 13px) * -1);
+  z-index: 2;
+  grid-area: 1 / 1 / -1 / -1;
+  height: 100%;
+  pointer-events: none;
+  transition: background-color var(--transition-base), border-color var(--transition-base);
+}
+
+.balance-info__inner {
+  position: relative;
+  z-index: 1;
+  grid-area: 1 / 1 / -1 / -1;
+  display: grid;
+  grid-gap: 4px;
+  margin: 4px;
+  padding: 15px;
+  min-height: 140px;
+  height: calc(100% - 8px);
+  background-color: rgb(var(--stb-green-900));
+  border: 1px solid rgb(var(--stb-bronth-800));
+  outline: 2px solid rgb(var(--stb-black-1000) / 0.2);
+  outline-offset: -3px;
+  box-shadow: 0 16px 20px rgb(var(--stb-black-1000) / 0.12);
+}
+.balance-info__inner::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  opacity: 0.08;
+  background-image: url("/images/ui/card-pattern.png");
+  background-size: 120px 128px;
+}
+
+.balance-detail {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 6px;
+}
+.balance-detail__title {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: rgb(var(--stb-white-1000) / 0.3);
+  transition: color var(--transition-base);
+}
+.balance-detail__text {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.6;
+  color: rgb(var(--stb-white-1000));
+}
+
+/* ── Divider ──────────────────────────────────────────────────────────────── */
+.divider {
+  height: 7px;
+  opacity: 0.9;
+  background-image:
+    url(/images/ui/divider_2.svg),
+    url(/images/ui/divider_2.svg),
+    url(/images/ui/divider_2.svg),
+    linear-gradient(rgb(var(--stb-bronth-800)), rgb(var(--stb-bronth-800))),
+    linear-gradient(rgb(var(--stb-bronth-800)), rgb(var(--stb-bronth-800))),
+    linear-gradient(rgb(var(--stb-bronth-800)), rgb(var(--stb-bronth-800))),
+    linear-gradient(rgb(var(--stb-bronth-800)), rgb(var(--stb-bronth-800)));
+  background-repeat: no-repeat;
+  background-size:
+    7px, 7px, 7px,
+    1px 5px, calc(50% - 10px) 1px, calc(50% - 10px) 1px, 1px 5px;
+  background-position:
+    left calc(50% - 7px) center,
+    center,
+    left calc(50% + 7px) center,
+    left center,
+    left 1px center,
+    right 1px center,
+    right center;
+}
+
+/* ── Delimiter ────────────────────────────────────────────────────────────── */
+.delimiter {
+  --w:      var(--stb-divider-width, 200px);
+  --center: 10px;
+  --gap:    var(--stb-gap, 10px);
+  width: var(--w);
+  height: 10px;
+  opacity: 0.8;
+  background-image:
+    url(/images/ui/divider_1.svg),
+    linear-gradient(rgb(var(--stb-bronth-800)), rgb(var(--stb-bronth-800))),
+    url(/images/ui/divider_1.svg),
+    linear-gradient(rgb(var(--stb-bronth-800)), rgb(var(--stb-bronth-800))),
+    url(/images/ui/divider_1.svg);
+  background-repeat: no-repeat;
+  background-position:
+    left center,
+    left 4px center,
+    50%,
+    right 4px center,
+    right center;
+  background-size:
+    5px 5px,
+    calc(var(--w) / 2 - (var(--center) / 2 + var(--gap))) 1px,
+    var(--center) var(--center),
+    calc(var(--w) / 2 - (var(--center) / 2 + var(--gap))) 1px,
+    5px 5px;
+}
+
+/* ── Deposit card frame ───────────────────────────────────────────────────── */
+.deposit-card { position: relative; }
+.deposit-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-image: url("/images/ui/dialog-frame.svg") 30 / 30px stretch;
+}

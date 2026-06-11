@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.upbittrade.www.twa",
+      "sha256_cert_fingerprints": [
+        "D6:0A:1F:FB:C5:F2:F4:CB:97:93:2E:DF:E6:24:68:B3:3A:2A:7B:E9:B4:ED:B8:77:1E:39:C9:E4:20:58:B3:7C"
+      ]
+    }
+  }
+]
