@@ -68,7 +68,7 @@ export const NAV_ITEMS: NavItem[] = [
   { key: "deposit", label: "Deposit", icon: Download, href: "/deposit" },
   { key: "withdraw", label: "Withdraw", icon: Upload, href: "/withdraw" },
   { key: "lottery", label: "Lottery", icon: TicketMinus, href: "/lottary" },
-  { key: "loan", label: "Loan", icon: Landmark, href: "/loan" },
+  { key: "loan", label: "Loan", icon: Landmark, href: "/loans" },
   {
     key: "rank-reward",
     label: "Rank Reward",

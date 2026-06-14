@@ -3,10 +3,17 @@
 /* ────────── enable DataGrid keys in theme.components ────────── */
 import type {} from "@mui/x-data-grid/themeAugmentation";
 
+import { useState } from "react";
+
 import CssBaseline from "@mui/material/CssBaseline";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 
-/* ────────── App-wide MUI theme (dark) ────────── */
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+/* ─────────────────────────────────────────────
+   App-wide MUI theme (dark)
+   UI আগের মতই থাকবে, এখানে কোনো design change করা হয়নি।
+───────────────────────────────────────────── */
 const theme = createTheme({
   palette: {
     mode: "dark",
@@ -48,10 +55,40 @@ const theme = createTheme({
 });
 
 export default function Providers({ children }: { children: React.ReactNode }) {
+  /* ─────────────────────────────────────────────
+     React Query Client
+     useState দিয়ে একবারই QueryClient create করা হচ্ছে।
+     না হলে re-render হলে cache reset হতে পারে।
+  ───────────────────────────────────────────── */
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            /* ── Window focus করলে বারবার auto API refetch বন্ধ ── */
+            refetchOnWindowFocus: false,
+
+            /* ── API failed হলে ১ বার retry করবে ── */
+            retry: 1,
+          },
+        },
+      }),
+  );
+
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      {children}
-    </ThemeProvider>
+    /* ─────────────────────────────────────────────
+       QueryClientProvider
+       Lottery page-এ useQueryClient/useQuery/useMutation ব্যবহার হয়েছে।
+       তাই এই provider না থাকলে:
+       "No QueryClient set, use QueryClientProvider to set one" 
+       error দেখাবে।
+    ───────────────────────────────────────────── */
+    <QueryClientProvider client={queryClient}>
+      {/* ── Existing MUI provider আগের মতই রাখা হয়েছে ── */}
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        {children}
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 }
