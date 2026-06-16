@@ -38,6 +38,12 @@ export const apiSlice = createApi({
     "StakingPlans",
     "StakingLogs",
     "SpotWallets",
+    "Loans",
+    "Loan",
+    "Lottery",
+    "LotteryTickets",
+    "LotteryWinners",
+    "Wallets",
   ],
   endpoints: (builder) => ({}),
 });

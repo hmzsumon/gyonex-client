@@ -1,8 +1,12 @@
 "use client";
 
 import { formatUSD } from "@/lib/format";
-import { lotteryApi } from "@/services/api";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useBuyLotteryTicketsMutation,
+  useGetActiveLotteryQuery,
+  useGetLotteryWinnersQuery,
+  useGetMyLotteryTicketsQuery,
+} from "@/redux/features/lottery/lotteryApi";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   AlertTriangle,
@@ -159,8 +163,6 @@ function Toast({ msg, ok }: { msg: string; ok: boolean }) {
 type TabId = "main" | "myTickets" | "winners";
 
 export default function LotteryPage() {
-  const qc = useQueryClient();
-
   const [qty, setQty] = useState(1);
   const [tab, setTab] = useState<TabId>("main");
   const [winnersPage, setWP] = useState(1);
@@ -171,70 +173,49 @@ export default function LotteryPage() {
     setTimeout(() => setToast(null), 3_500);
   };
 
-  /* ── Queries ── */
-  const { data: activeData, isLoading } = useQuery({
-    queryKey: ["lottery-active"],
-    queryFn: lotteryApi.getActive,
-    refetchInterval: 10_000,
+  /* ─────────────────────────────────────────────────────────────
+     Redux queries
+     Lottery page এখন RTK Query ব্যবহার করছে।
+  ───────────────────────────────────────────────────────────── */
+  const { data: activeData, isLoading } = useGetActiveLotteryQuery(undefined, {
+    pollingInterval: 10_000,
   });
 
-  const { data: myData } = useQuery({
-    queryKey: ["my-tickets"],
-    queryFn: lotteryApi.getMyTickets,
-  });
+  const { data: myData } = useGetMyLotteryTicketsQuery();
 
-  const { data: winnersData } = useQuery({
-    queryKey: ["lottery-winners", winnersPage],
-    queryFn: () => lotteryApi.getWinners(winnersPage),
-  });
+  const { data: winnersData } = useGetLotteryWinnersQuery(winnersPage);
 
   /* ── Derived data ── */
-  const lottery = activeData?.data?.data?.lottery;
-  const totalTickets = activeData?.data?.data?.totalTickets ?? 0;
-  const myTickets = activeData?.data?.data?.myTickets ?? 0;
-  const myHistory = myData?.data?.data ?? [];
-  const winners = winnersData?.data?.data?.winners ?? [];
-  const totalWinners = winnersData?.data?.data?.total ?? 0;
-  const totalPages = winnersData?.data?.data?.pages ?? 1;
+  const lottery = activeData?.data?.lottery;
+  const totalTickets = activeData?.data?.totalTickets ?? 0;
+  const myTickets = activeData?.data?.myTickets ?? 0;
+  const myHistory = myData?.data ?? [];
+  const winners = winnersData?.data?.winners ?? [];
+  const totalWinners = winnersData?.data?.total ?? 0;
+  const totalPages = winnersData?.data?.pages ?? 1;
 
-  /* ── Buy mutation ── */
-  const buyMutation = useMutation({
-    mutationFn: () => {
-      /* ─────────────────────────────────────────────────────────────
-         Safety check:
-         Active lottery API থেকে load হওয়ার আগে যদি user click করে,
-         তাহলে lottery undefined হতে পারে।
-         তাই lottery._id access করার আগে check করা হলো।
-      ───────────────────────────────────────────────────────────── */
+  /* ─────────────────────────────────────────────────────────────
+     Redux mutation: buy lottery ticket
+     Success হলে tag invalidation দিয়ে active lottery, my tickets,
+     wallet data auto refresh হবে।
+  ───────────────────────────────────────────────────────────── */
+  const [buyLotteryTickets, buyMutation] = useBuyLotteryTicketsMutation();
+
+  const handleBuyTickets = async () => {
+    try {
       if (!lottery?._id) {
         throw new Error("No active lottery found");
       }
 
-      return lotteryApi.buyTickets(lottery._id, qty);
-    },
-
-    onSuccess: () => {
+      await buyLotteryTickets({
+        lotteryId: lottery._id,
+        quantity: qty,
+      }).unwrap();
       showToast(`${qty} ticket${qty > 1 ? "s" : ""} purchased! Good luck! 🎟️`);
-
-      /* ─────────────────────────────────────────────────────────────
-         Ticket buy success হলে related query গুলো refresh করা হচ্ছে।
-         এতে active lottery, my tickets এবং wallet balance updated থাকবে।
-      ───────────────────────────────────────────────────────────── */
-      qc.invalidateQueries({ queryKey: ["lottery-active"] });
-      qc.invalidateQueries({ queryKey: ["my-tickets"] });
-      qc.invalidateQueries({ queryKey: ["wallets"] });
-    },
-
-    onError: (e: {
-      response?: { data?: { message?: string } };
-      message?: string;
-    }) => {
-      showToast(
-        e.response?.data?.message ?? e.message ?? "Purchase failed",
-        false,
-      );
-    },
-  });
+    } catch (e: any) {
+      showToast(e?.data?.message ?? e?.message ?? "Purchase failed", false);
+    }
+  };
 
   /* ── Derived values ── */
   const totalCost = TICKET_PRICE * qty;
@@ -591,8 +572,8 @@ export default function LotteryPage() {
 
                 {/* Buy button */}
                 <button
-                  onClick={() => buyMutation.mutate()}
-                  disabled={buyMutation.isPending}
+                  onClick={handleBuyTickets}
+                  disabled={buyMutation.isLoading}
                   className="btn w-full btn-lg"
                   style={{
                     background:
@@ -601,7 +582,7 @@ export default function LotteryPage() {
                     boxShadow: "0 4px 20px rgba(245,183,49,0.35)",
                   }}
                 >
-                  {buyMutation.isPending ? (
+                  {buyMutation.isLoading ? (
                     <>
                       <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
                       Processing…
