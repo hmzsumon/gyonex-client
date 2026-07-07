@@ -1,26 +1,33 @@
 {
-  "name": "Oblixar — Crypto Exchange",
-  "short_name": "Oblixar",
-  "description": "Professional crypto exchange. Spot, Futures, P2P, Staking & Ranks.",
+  "name": "Gyonex Trade",
+  "short_name": "Gyonex",
+  "description": "Trade on your favorite trading platforms with Gyonex Trade.",
   "start_url": "/",
-  "display": "standalone",
-  "background_color": "#0A0E17",
-  "theme_color": "#3182F6",
-  "orientation": "portrait-primary",
   "scope": "/",
+  "display": "standalone",
+  "background_color": "#061326",
+  "theme_color": "#061326",
+  "orientation": "portrait-primary",
   "lang": "en",
   "categories": ["finance", "productivity"],
   "icons": [
-    { "src": "/icons/icon-72x72.png",   "sizes": "72x72",   "type": "image/png", "purpose": "any maskable" },
-    { "src": "/icons/icon-96x96.png",   "sizes": "96x96",   "type": "image/png", "purpose": "any maskable" },
-    { "src": "/icons/icon-128x128.png", "sizes": "128x128", "type": "image/png", "purpose": "any maskable" },
-    { "src": "/icons/icon-144x144.png", "sizes": "144x144", "type": "image/png", "purpose": "any maskable" },
-    { "src": "/icons/icon-192x192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
-    { "src": "/icons/icon-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
-  ],
-  "shortcuts": [
-    { "name": "Trade",     "url": "/trading",   "icons": [{"src":"/icons/icon-96x96.png","sizes":"96x96"}] },
-    { "name": "Wallet",    "url": "/wallet",    "icons": [{"src":"/icons/icon-96x96.png","sizes":"96x96"}] },
-    { "name": "Dashboard", "url": "/dashboard", "icons": [{"src":"/icons/icon-96x96.png","sizes":"96x96"}] }
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/maskable-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ]
 }
