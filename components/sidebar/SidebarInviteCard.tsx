@@ -14,8 +14,8 @@ export default function SidebarInviteCard() {
   const handleDownload = () => {
     // Trigger download action
     const link = document.createElement("a");
-    link.href = "/apk/upbit-trade.apk";
-    link.download = "upbit-trade.apk";
+    link.href = "/apk/gyonex.apk";
+    link.download = "gyonex.apk";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
