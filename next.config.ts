@@ -27,7 +27,8 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/api/v1/:path*",
-        destination: "https://api-5-223-80-101.nip.io/api/v1/:path*",
+        destination:
+          "https://gyonex-api-8bd965ca374f.herokuapp.com/api/v1/:path*",
       },
     ];
   },
