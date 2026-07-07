@@ -9,15 +9,7 @@
 "use client";
 
 import { useSubmitKycDocumentsMutation } from "@/redux/features/auth/authApi";
-import {
-  doneUploadBack,
-  doneUploadFront,
-  go,
-  removeBack,
-  removeFront,
-  startUploadBack,
-  startUploadFront,
-} from "@/redux/features/kyc/kycSlice";
+import { go } from "@/redux/features/kyc/kycSlice";
 import { RootState } from "@/redux/store";
 import {
   Camera,
@@ -28,6 +20,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import KycSelfieAutoCapture from "./KycSelfieAutoCapture";
@@ -102,40 +95,69 @@ const DOC_LABELS: Record<string, string> = {
   oldid: "Old NID Card",
 };
 
+/* ── preview url helper ─────────────────────────────────── */
+function useFilePreview(file: File | null) {
+  const [url, setUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!file) {
+      setUrl(null);
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(file);
+    setUrl(objectUrl);
+
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [file]);
+
+  return url;
+}
+
 /* ─────────────────────────────────────────────────────────── */
 export default function KycUpload() {
   const router = useRouter();
   const d = useDispatch();
 
-  const {
-    frontFile,
-    backFile,
-    selfieFile,
-    uploadingFront,
-    uploadingBack,
-    docType,
-    issuingCountry,
-  } = useSelector((s: RootState) => s.kyc);
+  const { docType, issuingCountry } = useSelector((s: RootState) => s.kyc);
+
+  /* ── local file state ───────────────────────────────────────
+     Redux state serializable রাখতে File object local state-এ রাখা হয়েছে।
+     তাই console-এর non-serializable warning আর আসবে না।
+  ──────────────────────────────────────────────────────────── */
+  const [frontFile, setFrontFile] = useState<File | null>(null);
+  const [backFile, setBackFile] = useState<File | null>(null);
+  const [selfieFile, setSelfieFile] = useState<File | null>(null);
+
+  const [uploadingFront, setUploadingFront] = useState(false);
+  const [uploadingBack, setUploadingBack] = useState(false);
 
   const [submitKycDocuments, { isLoading }] = useSubmitKycDocumentsMutation();
 
   const isPassport = docType === "passport";
   const needsBack = !isPassport;
 
-  const frontUrl = frontFile ? URL.createObjectURL(frontFile) : null;
-  const backUrl = backFile ? URL.createObjectURL(backFile) : null;
+  const frontUrl = useFilePreview(frontFile);
+  const backUrl = useFilePreview(backFile);
 
   const pick = async (
     f: File | undefined,
-    onStart: () => void,
+    setLoading: (value: boolean) => void,
     onDone: (f: File) => void,
   ) => {
     if (!f) return;
-    if (!f.type.startsWith("image/"))
+    if (!f.type.startsWith("image/")) {
       return toast.error("Please select an image file");
-    onStart();
-    const compressed = await compressImage(f);
-    setTimeout(() => onDone(compressed), 200);
+    }
+
+    setLoading(true);
+
+    try {
+      const compressed = await compressImage(f);
+      onDone(compressed);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const step1Done = !!frontFile;
@@ -215,14 +237,8 @@ export default function KycUpload() {
         done={step1Done}
         loading={uploadingFront}
         previewUrl={frontUrl}
-        onPickFile={(f) =>
-          pick(
-            f,
-            () => d(startUploadFront()),
-            (c) => d(doneUploadFront(c)),
-          )
-        }
-        onRemove={() => d(removeFront())}
+        onPickFile={(f) => pick(f, setUploadingFront, setFrontFile)}
+        onRemove={() => setFrontFile(null)}
       />
 
       {/* ── STEP 2: Back ─────────────────────────────────────── */}
@@ -234,14 +250,8 @@ export default function KycUpload() {
           done={step2Done}
           loading={uploadingBack}
           previewUrl={backUrl}
-          onPickFile={(f) =>
-            pick(
-              f,
-              () => d(startUploadBack()),
-              (c) => d(doneUploadBack(c)),
-            )
-          }
-          onRemove={() => d(removeBack())}
+          onPickFile={(f) => pick(f, setUploadingBack, setBackFile)}
+          onRemove={() => setBackFile(null)}
           locked={!step1Done}
         />
       )}
@@ -250,7 +260,11 @@ export default function KycUpload() {
       <div
         className={`transition-all duration-300 ${!step1Done || (needsBack && !step2Done) ? "pointer-events-none opacity-35" : ""}`}
       >
-        <KycSelfieAutoCapture stepNumber={needsBack ? 3 : 2} />
+        <KycSelfieAutoCapture
+          stepNumber={needsBack ? 3 : 2}
+          selfieFile={selfieFile}
+          onSelfieChange={setSelfieFile}
+        />
       </div>
 
       {/* ── Submit ──────────────────────────────────────────── */}

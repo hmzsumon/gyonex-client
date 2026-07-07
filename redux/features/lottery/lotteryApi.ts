@@ -1,37 +1,57 @@
+/* ────────── client lottery RTK Query imports ────────── */
 import { apiSlice } from "../api/apiSlice";
+import type {
+  LotteryEvent,
+  LotteryTicket,
+  LotteryWinner,
+} from "./lotteryTypes";
 
-/* ─────────────────────────────────────────────────────────────────────────
-   Lottery API - RTK Query
-   Lottery page এখন Redux apiSlice ব্যবহার করবে।
-   services/api এবং React Query বাদ দেওয়া হয়েছে।
-───────────────────────────────────────────────────────────────────────── */
+/* ────────── client lottery API endpoints ────────── */
 export const lotteryApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    /* ────────── USER: active lottery ────────── */
+    getLotteryEvents: builder.query<
+      { success: boolean; data: LotteryEvent[] },
+      void
+    >({
+      query: () => "/lottery/events",
+      providesTags: ["Lottery", "LotteryTickets"],
+    }),
+
     getActiveLottery: builder.query<any, void>({
       query: () => "/lottery/active",
       providesTags: ["Lottery", "LotteryTickets"],
     }),
 
-    /* ────────── USER: my lottery tickets ────────── */
-    getMyLotteryTickets: builder.query<any, void>({
+    getMyLotteryTickets: builder.query<
+      { success: boolean; data: LotteryTicket[] },
+      void
+    >({
       query: () => "/lottery/my-tickets",
       providesTags: ["LotteryTickets"],
     }),
 
-    /* ────────── USER: winners list ────────── */
-    getLotteryWinners: builder.query<any, number | void>({
+    getLotteryWinners: builder.query<
+      {
+        success: boolean;
+        data: {
+          winners: LotteryWinner[];
+          total: number;
+          page: number;
+          pages: number;
+        };
+      },
+      number | void
+    >({
       query: (page = 1) => `/lottery/winners?page=${page}&limit=10`,
       providesTags: ["LotteryWinners"],
     }),
 
-    /* ────────── USER: buy lottery tickets ────────── */
     buyLotteryTickets: builder.mutation<
       any,
       { lotteryId: string; quantity: number }
     >({
       query: ({ lotteryId, quantity }) => ({
-        url: `/lottery/${lotteryId}/buy`,
+        url: `/lottery/events/${lotteryId}/buy`,
         method: "POST",
         body: { quantity },
       }),
@@ -40,7 +60,9 @@ export const lotteryApi = apiSlice.injectEndpoints({
   }),
 });
 
+/* ────────── client lottery generated hooks ────────── */
 export const {
+  useGetLotteryEventsQuery,
   useGetActiveLotteryQuery,
   useGetMyLotteryTicketsQuery,
   useGetLotteryWinnersQuery,

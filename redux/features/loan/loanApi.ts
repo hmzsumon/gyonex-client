@@ -31,8 +31,13 @@ export const loanApi = apiSlice.injectEndpoints({
       providesTags: ["Wallets", "Wallet"],
     }),
 
-    /* ────────── USER: apply for loan ────────── */
-    applyForLoan: builder.mutation<any, FormData>({
+    /* ────────── USER: apply for loan ──────────
+       File upload নেই, তাই normal JSON body পাঠানো হবে।
+    ───────────────────────────────────────────────────────────── */
+    applyForLoan: builder.mutation<
+      any,
+      { loanType: string; requestedAmount: number; repaymentPeriodDays: number }
+    >({
       query: (body) => ({
         url: "/loans/apply",
         method: "POST",

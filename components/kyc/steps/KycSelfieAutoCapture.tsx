@@ -11,12 +11,6 @@
 "use client";
 
 import {
-  doneUploadSelfie,
-  removeSelfie,
-  startUploadSelfie,
-} from "@/redux/features/kyc/kycSlice";
-import { RootState } from "@/redux/store";
-import {
   Camera,
   CheckCircle,
   RefreshCw,
@@ -26,7 +20,6 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import toast from "react-hot-toast";
-import { useDispatch, useSelector } from "react-redux";
 import Webcam from "react-webcam";
 
 /* ── Constants ────────────────────────────────────────────── */
@@ -165,10 +158,13 @@ const compressUploadFile = (file: File): Promise<File> =>
 /* ─────────────────────────────────────────────────────────── */
 export default function KycSelfieAutoCapture({
   stepNumber = 3,
+  selfieFile,
+  onSelfieChange,
 }: {
   stepNumber?: number;
+  selfieFile: File | null;
+  onSelfieChange: (file: File | null) => void;
 }) {
-  const d = useDispatch();
   const webcamRef = useRef<Webcam | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -177,8 +173,6 @@ export default function KycSelfieAutoCapture({
 
   /* Hidden file input ref for the upload-from-device flow */
   const uploadInputRef = useRef<HTMLInputElement | null>(null);
-
-  const { selfieFile, uploadingSelfie } = useSelector((s: RootState) => s.kyc);
 
   /* ── Camera / face-detection state ──────────────────────── */
   const [cameraReady, setCameraReady] = useState(false);
@@ -194,6 +188,12 @@ export default function KycSelfieAutoCapture({
 
   /* Upload processing indicator (shown while compressing large files) */
   const [isCompressing, setIsCompressing] = useState(false);
+
+  /* ── local upload state ─────────────────────────────────────
+     File object Redux-এ না রেখে parent local state-এ রাখা হয়েছে।
+     এতে Redux non-serializable warning বন্ধ হবে।
+  ──────────────────────────────────────────────────────────── */
+  const [uploadingSelfie, setUploadingSelfie] = useState(false);
 
   /* ── Sync preview URL with Redux selfie file ─────────────── */
   useEffect(() => {
@@ -283,13 +283,14 @@ export default function KycSelfieAutoCapture({
       return;
     }
 
-    d(startUploadSelfie());
+    setUploadingSelfie(true);
 
     /* compressSelfie handles resize + JPEG export for camera screenshots */
     const file = await compressSelfie(shot);
 
     setTimeout(() => {
-      d(doneUploadSelfie(file));
+      onSelfieChange(file);
+      setUploadingSelfie(false);
       setCapturing(false);
       setDetecting(false);
       toast.success("Selfie captured ✓");
@@ -375,7 +376,7 @@ export default function KycSelfieAutoCapture({
 
   /* ── Retake: reset all state and return to camera view ───── */
   const retake = () => {
-    d(removeSelfie());
+    onSelfieChange(null);
     stableRef.current = 0;
     capturingRef.current = false;
     setStableCount(0);
@@ -411,7 +412,7 @@ export default function KycSelfieAutoCapture({
       return;
     }
 
-    d(startUploadSelfie());
+    setUploadingSelfie(true);
 
     let finalFile = file;
 
@@ -432,7 +433,8 @@ export default function KycSelfieAutoCapture({
       }
     }
 
-    d(doneUploadSelfie(finalFile));
+    onSelfieChange(finalFile);
+    setUploadingSelfie(false);
     toast.success("Photo uploaded successfully");
   };
 
@@ -684,7 +686,7 @@ export default function KycSelfieAutoCapture({
               {/* Remove: clears the selfie from Redux */}
               <button
                 type="button"
-                onClick={() => d(removeSelfie())}
+                onClick={() => onSelfieChange(null)}
                 className="flex items-center justify-center gap-2 rounded-xl bg-red-600 px-4 py-3 text-sm font-semibold text-white hover:bg-red-500 active:scale-[0.97]"
               >
                 <Trash2 className="h-4 w-4" />

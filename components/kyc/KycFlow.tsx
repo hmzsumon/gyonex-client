@@ -23,16 +23,6 @@ export default function KycFlow() {
   const dispatch = useDispatch();
   const step = useSelector((s: any) => s.kyc.step);
 
-  console.log("KYC screens typeof:", {
-    KycStart: typeof KycStart,
-    KycEditName: typeof KycEditName,
-    KycAgreement: typeof KycAgreement,
-    KycIdentity: typeof KycIdentity,
-    KycGuidelines: typeof KycGuidelines,
-    KycUpload: typeof KycUpload,
-    KycUnderReview: typeof KycUnderReview,
-  });
-
   // ── calc progress (fake 5 ticks like in screenshots) ─────────
   const order: Record<string, number> = {
     entry: 0,
