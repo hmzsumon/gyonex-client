@@ -48,7 +48,7 @@ export default function LoansPage() {
   const repayLoan = loans.find((loan: any) => loan._id === repayId);
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6 p-4 pb-10 md:p-6">
+    <div className="mx-auto max-w-7xl space-y-6 py-4 pb-10 md:p-6">
       {/* ────────── Hero + KYC status ────────── */}
       <LoanEligibilityHero
         eligible={eligible}

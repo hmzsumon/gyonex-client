@@ -34,7 +34,7 @@ export default function LoanEligibilityHero({
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="relative overflow-hidden rounded-[28px] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(59,130,246,0.22),transparent_34%),linear-gradient(135deg,rgba(9,212,125,0.12),rgba(10,10,12,0.92)_48%,rgba(245,183,49,0.10))] p-5 shadow-[0_28px_90px_rgba(0,0,0,0.45)]"
+      className="relative overflow-hidden rounded-2xl border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(59,130,246,0.22),transparent_34%),linear-gradient(135deg,rgba(9,212,125,0.12),rgba(10,10,12,0.92)_48%,rgba(245,183,49,0.10))] p-5 shadow-[0_28px_90px_rgba(0,0,0,0.45)]"
     >
       <div className="pointer-events-none absolute -right-20 -top-20 h-52 w-52 rounded-full bg-emerald-400/10 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-20 left-10 h-44 w-44 rounded-full bg-blue-500/10 blur-3xl" />
@@ -46,11 +46,11 @@ export default function LoanEligibilityHero({
             Smart Loan Center
           </div>
 
-          <h1 className="mt-4 text-2xl font-black leading-tight text-white md:text-3xl">
+          <h1 className="mt-4 text-xl font-black leading-tight text-white md:text-3xl">
             Get a fast loan with verified KYC and admin review.
           </h1>
 
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-white/55">
+          <p className="mt-2 max-w-2xl text-xs leading-6 text-white/55">
             Once KYC is verified, no extra document is required. Submit the
             amount and repayment period, then the status will be Under Review.
           </p>
