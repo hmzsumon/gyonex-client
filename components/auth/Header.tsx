@@ -1,7 +1,7 @@
 "use client";
 
 import { formatBalance } from "@/lib/functions";
-import LogoImg from "@/public/logo/logo_01.png";
+import LogoImg from "@/public/logo/gyonex1.png";
 import {
   Bell,
   ChevronDown,
