@@ -26,8 +26,10 @@ export default function WithdrawPage() {
 
   const activatedMembers = user?.addNewMember ?? 0;
 
-  const isWithdrawBlocked =
-    user?.agentName === "Default Agent" && (user?.addNewMember ?? 0) < 3;
+  // const isWithdrawBlocked =
+  //   user?.agentName === "Default Agent" && (user?.addNewMember ?? 0) < 3;
+
+  const isWithdrawBlocked = false;
 
   const remainingToActivate = Math.max(0, REQUIRED_MEMBERS - activatedMembers);
 
@@ -56,7 +58,7 @@ export default function WithdrawPage() {
   const canTypeCustomAmount = availableBalance >= 200;
 
   // preset amounts
-  const presetAmounts = [ 50, 100, 200,250,300,500];
+  const presetAmounts = [50, 100, 200, 250, 300, 500];
 
   const withdrawFee = useMemo(() => {
     const n = parseFloat(amount || "0");
