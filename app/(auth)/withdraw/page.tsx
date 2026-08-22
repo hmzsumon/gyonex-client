@@ -3,10 +3,15 @@
 "use client";
 
 import SecurityVerifyDrawer from "@/components/security/SecurityVerifyDrawer";
+import {
+  useGetMyKycQuery,
+  useLoadUserQuery,
+} from "@/redux/features/auth/authApi";
 import { useCreateWithdrawRequestMutation } from "@/redux/features/withdraw/withdrawApi";
 import { fetchBaseQueryError } from "@/redux/services/helpers";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
 import {
@@ -19,19 +24,50 @@ import {
 } from "react-icons/fi";
 import { useSelector } from "react-redux";
 
-const REQUIRED_MEMBERS = 3;
+/* অ্যাডমিন per-user মান সেট না করলে এই ডিফল্টটা ব্যবহার হয় */
+const DEFAULT_REQUIRED_MEMBERS = 3;
 
 export default function WithdrawPage() {
   const { user } = useSelector((state: any) => state.auth);
 
+  const router = useRouter();
+
+  /* ────────── team activation gate ──────────
+     এই শর্ত সব ইউজারের জন্য নয়। অ্যাডমিন প্যানেল থেকে যাদের
+     require_team_activation = true করা হয়েছে, শুধু তাদের ক্ষেত্রেই।
+     কতজন লাগবে সেটাও per-user (required_team_members)।
+  ─────────────────────────────────────────── */
+  const teamRuleEnabled = user?.require_team_activation === true;
+  const requiredMembers = Number(
+    user?.required_team_members ?? DEFAULT_REQUIRED_MEMBERS,
+  );
   const activatedMembers = user?.addNewMember ?? 0;
+  const remainingToActivate = Math.max(0, requiredMembers - activatedMembers);
 
-  // const isWithdrawBlocked =
-  //   user?.agentName === "Default Agent" && (user?.addNewMember ?? 0) < 3;
+  /* ────────── KYC gate ──────────
+     Redux-এর user স্টেট বাসি হতে পারে (approve হওয়ার পর ইউজার
+     রি-লগইন না করলে), তাই load-user আর /kyc/me দুইটাই রিফেচ করে
+     সবচেয়ে টাটকা status নিচ্ছি।
+  ─────────────────────────────── */
+  useLoadUserQuery(undefined, { refetchOnMountOrArgChange: true });
+  const { data: kycData, isLoading: kycLoading } = useGetMyKycQuery();
 
-  const isWithdrawBlocked = false;
+  const kycDocStatus: string | undefined = kycData?.kyc?.status;
 
-  const remainingToActivate = Math.max(0, REQUIRED_MEMBERS - activatedMembers);
+  const kycStatus: "approved" | "pending" | "rejected" | "not_started" =
+    user?.kyc_verified || kycDocStatus === "approved"
+      ? "approved"
+      : kycDocStatus === "pending" || user?.kyc_request
+        ? "pending"
+        : kycDocStatus === "rejected"
+          ? "rejected"
+          : "not_started";
+
+  const needsKyc = kycStatus !== "approved";
+
+  const needsTeam = teamRuleEnabled && activatedMembers < requiredMembers;
+
+  const isWithdrawBlocked = needsKyc || needsTeam;
 
   // Create request
   const [createWithdrawRequest, { isLoading: isCreateLoading }] =
@@ -111,6 +147,24 @@ export default function WithdrawPage() {
       return;
     }
 
+    /* 🔒 KYC না থাকলে OTP পাঠানোর আগেই থামিয়ে দিই */
+    if (needsKyc) {
+      if (kycStatus === "pending") {
+        toast.error("Your KYC is under review. Please wait for approval.");
+        return;
+      }
+      toast.error("Please complete your KYC verification first.");
+      router.push("/settings/profile");
+      return;
+    }
+
+    if (needsTeam) {
+      toast.error(
+        `Activate ${remainingToActivate} more member(s) to unlock withdrawals.`,
+      );
+      return;
+    }
+
     // open OTP drawer, which sends the code & verifies
     setVerifyOpen(true);
   };
@@ -133,11 +187,16 @@ export default function WithdrawPage() {
         setWalletAddress("");
       })
       .catch((err: any) => {
+        const data = (err as fetchBaseQueryError)?.data as any;
+
         toast.error(
-          (err as fetchBaseQueryError)?.data?.message ||
-            (err as fetchBaseQueryError)?.data?.error ||
-            "Unable to create withdraw request",
+          data?.message || data?.error || "Unable to create withdraw request",
         );
+
+        /* সার্ভার KYC গেটে আটকালে সরাসরি KYC পেজে পাঠাই */
+        if (data?.code === "KYC_REQUIRED" && data?.kycStatus !== "pending") {
+          router.push("/settings/profile");
+        }
       });
   };
 
@@ -263,7 +322,7 @@ export default function WithdrawPage() {
                 {amount && !amountError && (
                   <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-neutral-300 md:grid-cols-3">
                     <div className="rounded-lg border border-neutral-800 bg-neutral-900/50 px-3 py-1.5">
-                      Fee (5%):{" "}
+                      Fee (8%):{" "}
                       <span className="font-semibold text-emerald-300">
                         ${withdrawFee}
                       </span>
@@ -339,6 +398,7 @@ export default function WithdrawPage() {
                   user?.is_withdraw_block ||
                   !availableBalance ||
                   isCreateLoading ||
+                  kycLoading ||
                   isWithdrawBlocked
                 }
                 className="w-full rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-neutral-950 transition hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-50"
@@ -346,39 +406,42 @@ export default function WithdrawPage() {
                 {isCreateLoading ? "Processing…" : "Request withdrawal"}
               </button>
 
-              {/* block withdraw message */}
-              {isWithdrawBlocked && (
-                <div className="mt-3 rounded-2xl border border-amber-500/30 bg-gradient-to-br from-amber-500/10 to-red-500/10 p-4 shadow-sm backdrop-blur-sm">
-                  <div className="flex items-start gap-3">
-                    <div className="rounded-full bg-amber-500/15 p-2 text-amber-300">
-                      <FiAlertCircle className="text-base" />
-                    </div>
+              {/* ────────── KYC gate notice ────────── */}
+              {needsKyc && (
+                <BlockNotice
+                  title={
+                    kycStatus === "pending"
+                      ? "KYC verification under review"
+                      : kycStatus === "rejected"
+                        ? "KYC verification was rejected"
+                        : "KYC verification required"
+                  }
+                  body={
+                    kycStatus === "pending"
+                      ? "We are reviewing your documents. Withdrawals will unlock automatically once your KYC is approved."
+                      : kycStatus === "rejected"
+                        ? "Your documents could not be verified. Please re-submit them to unlock withdrawals."
+                        : "Withdrawals are available to verified accounts only. Complete your KYC verification to continue."
+                  }
+                  ctaLabel={
+                    kycStatus === "pending"
+                      ? undefined
+                      : kycStatus === "rejected"
+                        ? "Re-submit KYC"
+                        : "Complete KYC Now"
+                  }
+                  ctaHref="/settings/profile"
+                />
+              )}
 
-                    <div className="flex-1">
-                      <p className="text-sm font-semibold text-amber-100">
-                        Withdrawals are temporarily unavailable
-                      </p>
-
-                      <p className="mt-1 text-xs leading-relaxed text-amber-200/90">
-                        To unlock withdrawal access, please complete your{" "}
-                        <span className="font-semibold text-white">
-                          KYC verification
-                        </span>
-                        .
-                      </p>
-
-                      <div className="mt-3">
-                        <Link
-                          href="/settings/profile"
-                          className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-3 py-2 text-xs font-medium text-white transition hover:bg-white/20"
-                        >
-                          Complete KYC Now
-                          <FiArrowRight className="text-sm" />
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+              {/* ────────── team activation notice ────────── */}
+              {!needsKyc && needsTeam && (
+                <BlockNotice
+                  title="Team requirement not met"
+                  body={`Activate ${remainingToActivate} more member(s) to unlock withdrawals. (${activatedMembers}/${requiredMembers} completed)`}
+                  ctaLabel="Invite friends"
+                  ctaHref="/team"
+                />
               )}
 
               {user?.is_withdraw_block && (
@@ -472,6 +535,49 @@ export default function WithdrawPage() {
         autoSendOnOpen={true}
         title="Verify Withdrawal"
       />
+    </div>
+  );
+}
+
+/* ────────── reusable block notice ────────── */
+function BlockNotice({
+  title,
+  body,
+  ctaLabel,
+  ctaHref,
+}: {
+  title: string;
+  body: string;
+  ctaLabel?: string;
+  ctaHref: string;
+}) {
+  return (
+    <div className="mt-3 rounded-2xl border border-amber-500/30 bg-gradient-to-br from-amber-500/10 to-red-500/10 p-4 shadow-sm backdrop-blur-sm">
+      <div className="flex items-start gap-3">
+        <div className="rounded-full bg-amber-500/15 p-2 text-amber-300">
+          <FiAlertCircle className="text-base" />
+        </div>
+
+        <div className="flex-1">
+          <p className="text-sm font-semibold text-amber-100">{title}</p>
+
+          <p className="mt-1 text-xs leading-relaxed text-amber-200/90">
+            {body}
+          </p>
+
+          {ctaLabel && (
+            <div className="mt-3">
+              <Link
+                href={ctaHref}
+                className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-3 py-2 text-xs font-medium text-white transition hover:bg-white/20"
+              >
+                {ctaLabel}
+                <FiArrowRight className="text-sm" />
+              </Link>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
