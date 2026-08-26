@@ -481,13 +481,13 @@ export default function KycSelfieAutoCapture({
         {!cameraError && !modelLoaded && !modelError && (
           <div className="flex items-center gap-1.5 rounded-full bg-yellow-500/10 px-2.5 py-1">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-yellow-400" />
-            <span className="text-[10px] text-yellow-400">Loading AI</span>
+            <span className="text-[10px] text-yellow-400">Loading</span>
           </div>
         )}
         {!cameraError && modelLoaded && !selfieFile && (
           <div className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-            <span className="text-[10px] text-emerald-400">AI Ready</span>
+            <span className="text-[10px] text-emerald-400">Ready</span>
           </div>
         )}
       </div>

@@ -827,7 +827,7 @@ export default function LandingPage() {
               Our platform uses live Upbit market data with professional-grade TradingView charts. Get buy/sell signals, support/resistance zones, and pattern recognition in real time.
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 30 }}>
-              {['Real-time candlestick charts with 7 timeframes','Live order book depth visualization','Stop-loss, take-profit, and trailing stops','AI-powered support & resistance detection'].map((f, i) => (
+              {['Real-time candlestick charts with 7 timeframes','Live order book depth visualization','Stop-loss, take-profit, and trailing stops','Smart-powered support & resistance detection'].map((f, i) => (
                 <motion.div
                   key={f}
                   initial={{ opacity: 0, x: -16 }}

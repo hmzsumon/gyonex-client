@@ -18,6 +18,8 @@ interface TransactionCardProps {
   orderId: string;
   onCopy?: (value: string) => void;
   record?: any;
+  network: string;
+  address: string;
 }
 
 const statusColor: Record<string, string> = {
@@ -35,15 +37,16 @@ const TransactionCard = ({
   orderId,
   record,
   onCopy,
-  method = { network: "", address: "" },
+  network,
+  address,
 }: TransactionCardProps) => {
   const { user } = useSelector((state: any) => state.auth);
   const typeColor =
     type === "Deposit"
       ? "green-500"
       : type === "Withdraw"
-      ? "red-500"
-      : "blue-500";
+        ? "red-500"
+        : "blue-500";
 
   const is_sender = type === "Transfer" && record?.sender?.user_id === user._id;
   const is_receiver =
@@ -106,12 +109,12 @@ const TransactionCard = ({
           <>
             <div className="flex justify-between">
               <span className="text-gray-500">Network</span>
-              <span className="font-bold  capitalize">{method?.network}</span>
+              <span className="font-bold  capitalize">{network}</span>
             </div>
 
             <div className="flex justify-between">
               <span className="text-gray-500">Address</span>
-              <span className="">{method?.address.slice(0, 12)}...</span>
+              <span className="">{address.slice(0, 12)}...</span>
             </div>
           </>
         )}

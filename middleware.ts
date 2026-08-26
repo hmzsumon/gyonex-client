@@ -52,7 +52,9 @@ export function middleware(request: NextRequest) {
     }
 
     const url = request.nextUrl.clone();
-    url.pathname = "/register-login?tab=signin";
+    url.pathname = "/register-login";
+    url.search = "";
+    url.searchParams.set("tab", "signin");
     url.searchParams.set("next", pathname);
     // ✅ 303 দিলে মেথড GET হয়ে যাবে (307 নয়)
     return NextResponse.redirect(url, 303);

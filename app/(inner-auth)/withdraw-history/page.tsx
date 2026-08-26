@@ -9,6 +9,7 @@ const WithdrawHistory = () => {
     useGetMyWithdrawRequestsQuery(undefined);
 
   const { withdraws } = data || [];
+  console.log("withdraws", withdraws);
 
   return (
     <div className="flex flex-col gap-1 bg-white min-h-[80vh] ">
@@ -28,6 +29,8 @@ const WithdrawHistory = () => {
                 navigator.clipboard.writeText(value);
                 toast.success("Copied to clipboard");
               }}
+              network={withdraw.netWork}
+              address={withdraw.netWorkAddress}
               record={withdraw}
             />
           ))}

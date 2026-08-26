@@ -77,7 +77,7 @@ export default function OpenAccountWizard({
         {/* empty */}
         {!isLoading && plans.length === 0 && (
           <div className="p-6 text-center text-sm text-red-400">
-            No AI plans found
+            No Smart Trade plans found
           </div>
         )}
 

@@ -186,7 +186,7 @@ export default function AiAccountDetailsPage({
             </svg>
             Back
           </button>
-          <h1 className="text-xl font-bold">Smart Account Details</h1>
+          <h1 className="text-xl font-bold">Smart Trade Account Details</h1>
         </div>
 
         {/* ── Hero balance card ── */}
@@ -195,14 +195,14 @@ export default function AiAccountDetailsPage({
             <div>
               <p className="text-xs text-neutral-500 mb-0.5">Account</p>
               <p className="text-lg font-bold tracking-wide">
-                AI #{acc.accountNumber}
+                ST #{acc.accountNumber}
               </p>
               <div className="mt-1.5 flex gap-2 text-xs">
                 <span className="px-2 py-0.5 rounded-md bg-neutral-800 text-neutral-300">
                   CGFX
                 </span>
-                <span className="px-2 py-0.5 rounded-md bg-neutral-800 text-neutral-300 capitalize">
-                  {acc.mode}
+                <span className="px-2 py-0.5 rounded-md bg-neutral-800 text-neutral-300">
+                  ST
                 </span>
                 <span className="px-2 py-0.5 rounded-md bg-neutral-800 text-neutral-300 capitalize">
                   {acc.plan}

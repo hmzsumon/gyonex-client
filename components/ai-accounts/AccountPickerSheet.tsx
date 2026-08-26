@@ -43,7 +43,7 @@ export default function AccountPickerSheet({
       <div className="absolute bottom-0 left-0 right-0 bg-neutral-950 border-t border-neutral-800 rounded-t-2xl">
         {/* header */}
         <div className="p-4 flex items-center justify-between">
-          <div className="text-xl font-semibold"> AI Accounts</div>
+          <div className="text-xl font-semibold">Smart Trade Accounts</div>
         </div>
 
         {/* tabs */}
@@ -85,8 +85,8 @@ export default function AccountPickerSheet({
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <div className="text-base font-medium capitalize">
-                    {acc.mode} Account
+                  <div className="text-base font-medium">
+                    Smart Trade Account
                   </div>
                   <div className="text-sm">
                     {acc.balance.toFixed(2)} {acc.currency}

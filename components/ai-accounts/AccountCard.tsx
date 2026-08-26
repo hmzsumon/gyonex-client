@@ -42,7 +42,7 @@ export default function AccountCard({
       return;
     }
 
-    const toastId = toast.loading("Adding funds to your AI account...");
+    const toastId = toast.loading("Adding funds to your Smart Trade account...");
 
     try {
       const res: any = await addFund({
@@ -52,7 +52,7 @@ export default function AccountCard({
 
       const msg =
         res?.message ||
-        `Successfully added ${nedAmount} USDT to your AI account.`;
+        `Successfully added ${nedAmount} USDT to your Smart Trade account.`;
 
       toast.success(msg, { id: toastId });
     } catch (err: any) {
@@ -68,7 +68,7 @@ export default function AccountCard({
     <div className="rounded-lg bg-neutral-950 border border-neutral-800 px-3 py-4">
       <div className="flex items-center justify-between">
         <div className="text-sm text-neutral-400">
-          {acc.mode.toUpperCase()} <span className="text-neutral-500">#</span>{" "}
+          ST <span className="text-neutral-500">#</span>{" "}
           <span className="font-medium">{acc.accountNumber}</span>
         </div>
         {/* FABs */}
@@ -77,10 +77,8 @@ export default function AccountCard({
 
       {/* ── chips row ── */}
       <div className="mt-2 flex gap-2 text-xs">
-        <span className="px-2 py-1 rounded-lg bg-neutral-800">CGFX</span>
-        <span className="px-2 py-1 rounded-lg bg-neutral-800 capitalize">
-          {acc.mode}
-        </span>
+        <span className="px-2 py-1 rounded-lg bg-neutral-800">GX</span>
+        <span className="px-2 py-1 rounded-lg bg-neutral-800">ST</span>
         <span className="px-2 py-1 rounded-lg capitalize bg-neutral-800">
           {acc.plan}
         </span>

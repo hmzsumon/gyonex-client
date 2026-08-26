@@ -193,7 +193,7 @@ export default function SupportPage() {
               Minimum deposit (Smart Trade)
             </div>
             <p className="text-sm text-neutral-300">
-              To join AI Trade you need at least{" "}
+              To join Smart Trade you need at least{" "}
               <span className="font-semibold">$30</span>. Regular deposit min
               can be lower.
             </p>

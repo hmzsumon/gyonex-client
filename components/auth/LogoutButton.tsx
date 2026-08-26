@@ -15,7 +15,7 @@ const LogoutButton: React.FC<{ onLogout?: () => void }> = ({ onLogout }) => {
     logoutUser(undefined)
       .unwrap()
       .then(() => {
-        router.push("/login"); // Redirect to login page after logout
+        router.push("/"); // Redirect to home page after logout
         dispatch(closeUserSidebar()); // Close the sidebar
       })
       .catch((err) => {

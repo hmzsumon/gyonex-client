@@ -34,7 +34,7 @@ export default function AiAccountsPage() {
     <div className="bg-[#0b0e11] text-white">
       <div className="max-w-4xl mx-auto  pb-4">
         <div className="pt-6">
-          <h1 className="text-xl ml-2 font-bold">Smart Accounts</h1>
+          <h1 className="text-xl ml-2 font-bold">Smart Trade Accounts</h1>
         </div>
 
         <div className="mt-4">
