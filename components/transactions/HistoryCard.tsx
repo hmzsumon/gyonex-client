@@ -5,8 +5,7 @@ import { formDateWithTime } from "@/lib/functions";
 import { Copy } from "lucide-react";
 import { useSelector } from "react-redux";
 
-interface TransactionCardProps {
-  type: "Deposit" | "Withdraw" | "Transfer";
+interface BaseTransactionCardProps {
   status: "Complete" | "Pending" | "Failed";
   amount: number;
   currency?: string;
@@ -18,9 +17,13 @@ interface TransactionCardProps {
   orderId: string;
   onCopy?: (value: string) => void;
   record?: any;
-  network: string;
-  address: string;
 }
+
+type TransactionCardProps = BaseTransactionCardProps &
+  (
+    | { type: "Withdraw"; network: string; address: string }
+    | { type: "Deposit" | "Transfer"; network?: string; address?: string }
+  );
 
 const statusColor: Record<string, string> = {
   Complete: "text-green-600",

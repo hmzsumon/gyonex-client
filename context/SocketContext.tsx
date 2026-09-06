@@ -3,6 +3,10 @@
 import socketUrl from "@/config/socketUrl"; // ✅ dedicated socket URL
 import { apiSlice } from "@/redux/features/api/apiSlice";
 import { SocketUser } from "@/types";
+import {
+  playNotificationSound,
+  unlockNotifySoundOnUserGesture,
+} from "@/lib/notifySound";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { io, Socket } from "socket.io-client";
@@ -26,6 +30,11 @@ export const SocketContextProvider = ({
   const [isSocketConnected, setIsSocketConnected] = useState(false);
   const [onlineUsers, setOnlineUsers] = useState<SocketUser[]>([]);
   const dispatch = useDispatch();
+
+  // পেজে প্রথম ক্লিক/কী-প্রেসে সাউন্ড আনলক করে রাখা (browser autoplay policy)
+  useEffect(() => {
+    unlockNotifySoundOnUserGesture();
+  }, []);
 
   /* ──────────  connect + join room  ────────── */
   useEffect(() => {
@@ -67,6 +76,9 @@ export const SocketContextProvider = ({
     // -------- existing listeners --------
     const onUsers = (users: SocketUser[]) => setOnlineUsers(users);
     const onNewNotif = () => {
+      // ইউজার এখন অনলাইনে (সকেট কানেক্টেড) — তাই এখানেই সাউন্ড দিয়ে
+      // জানানো হচ্ছে; অফলাইনে থাকলে ব্যাকএন্ড এর বদলে push পাঠায়
+      playNotificationSound();
       dispatch(
         apiSlice.util.invalidateTags([
           "MyUnreadNotifications",
