@@ -39,13 +39,11 @@ export default function DashboardPage() {
           <LinkButton href="/deposit" variant="primary">
             Add Funds
           </LinkButton>
-
-          <LinkButton href="/wallet/p2p" variant="secondary">
-            Send
+          <LinkButton href="/withdraw" variant="secondary">
+            Withdraw
           </LinkButton>
-
-          <LinkButton href="/transfer" variant="secondary">
-            Transfer
+          <LinkButton href="/lucky-cards" variant="secondary">
+            Lucky Cards
           </LinkButton>
         </div>
 

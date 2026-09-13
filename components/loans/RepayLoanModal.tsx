@@ -1,14 +1,18 @@
 "use client";
 
 import { formatUSD } from "@/lib/format";
-import { useRepayLoanMutation } from "@/redux/features/loan/loanApi";
+import {
+  useGetLoanRepaymentSettingsQuery,
+  useRepayLoanMutation,
+} from "@/redux/features/loan/loanApi";
 import { motion } from "framer-motion";
 import { Loader2, RefreshCw } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import toast from "react-hot-toast";
 
 /* ─────────────────────────────────────────────────────────────
-   Repay modal
+   Repay modal — repayment amount + admin-configurable fee %
+   preview (fee is added on top, charged from main balance).
 ────────────────────────────────────────────────────────────── */
 export default function RepayLoanModal({
   loan,
@@ -19,7 +23,16 @@ export default function RepayLoanModal({
 }) {
   const [amount, setAmount] = useState("");
   const [repayLoan, repayMutation] = useRepayLoanMutation();
+  const { data: settingsData } = useGetLoanRepaymentSettingsQuery();
+  const feePercent = settingsData?.settings.repaymentFeePercent ?? 8;
   const remaining = Math.max(0, (loan.totalRepayable || 0) - (loan.totalPaid || 0));
+
+  const payAmount = Number(amount) || 0;
+  const fee = useMemo(
+    () => Number(((payAmount * feePercent) / 100).toFixed(2)),
+    [payAmount, feePercent],
+  );
+  const totalCharge = Number((payAmount + fee).toFixed(2));
 
   /* ────────── Handle repay loan ──────────
      Repayment success/error message will be shown using react-hot-toast.
@@ -88,6 +101,15 @@ export default function RepayLoanModal({
           ))}
         </div>
 
+        {payAmount > 0 && (
+          <div className="mt-4 space-y-1.5 rounded-2xl border border-white/10 bg-white/[0.04] p-3 text-xs">
+            <Row label="Repayment amount" value={formatUSD(payAmount)} />
+            <Row label={`Service fee (${feePercent}%)`} value={`+ ${formatUSD(fee)}`} accent="text-amber-300" />
+            <div className="my-1 h-px bg-white/10" />
+            <Row label="Total charged from balance" value={formatUSD(totalCharge)} accent="text-blue-300" bold />
+          </div>
+        )}
+
         <button
           type="button"
           onClick={handleRepay}
@@ -99,9 +121,31 @@ export default function RepayLoanModal({
           ) : (
             <RefreshCw className="h-4 w-4" />
           )}
-          Confirm Repayment
+          {payAmount > 0 ? `Confirm — Pay ${formatUSD(totalCharge)}` : "Confirm Repayment"}
         </button>
       </motion.div>
     </motion.div>
+  );
+}
+
+/* ────────── tiny label/value row for the fee breakdown ────────── */
+function Row({
+  label,
+  value,
+  accent,
+  bold,
+}: {
+  label: string;
+  value: string;
+  accent?: string;
+  bold?: boolean;
+}) {
+  return (
+    <div className="flex items-center justify-between">
+      <span className="text-white/45">{label}</span>
+      <span className={`${bold ? "font-black" : "font-bold"} ${accent || "text-white/80"}`}>
+        {value}
+      </span>
+    </div>
   );
 }

@@ -19,7 +19,29 @@ export const walletApi = apiSlice.injectEndpoints({
         }
       },
     }),
+
+    /* ── total trade income: AI + Live trade profit & commission, combined ── */
+    getMyTradeIncome: builder.query<
+      {
+        success: boolean;
+        totalTradeIncome: number;
+        breakdown: {
+          aiTradeProfit: number;
+          aiTradeCommission: number;
+          liveTradeProfit: number;
+          liveTradeCommission: number;
+        };
+      },
+      void
+    >({
+      query: () => ({ url: "/wallet/trade-income", method: "GET" }),
+      providesTags: ["Wallet"],
+    }),
   }),
 });
 
-export const { useGetWalletQuery, useLazyGetWalletQuery } = walletApi;
+export const {
+  useGetWalletQuery,
+  useLazyGetWalletQuery,
+  useGetMyTradeIncomeQuery,
+} = walletApi;

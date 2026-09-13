@@ -1,5 +1,6 @@
 "use client";
 
+import { toSmartTradeLabel } from "@/lib/format";
 import { useState } from "react";
 
 /* ── type: single transaction record ────────────────────────────────────── */
@@ -54,7 +55,9 @@ const TransactionCard = ({ record }: TransactionCardProps) => {
         </div>
 
         <div className="text-right">
-          <p className={`text-xs font-bold ${resultColor}`}>{record.purpose}</p>
+          <p className={`text-xs font-bold ${resultColor}`}>
+            {toSmartTradeLabel(record.purpose)}
+          </p>
           <p className={`${resultColor} text-xs font-bold`}>
             {Number.isFinite(record.amount)
               ? Math.abs(record.amount).toFixed(2)
@@ -84,14 +87,14 @@ const TransactionCard = ({ record }: TransactionCardProps) => {
 
           <div className="flex justify-between">
             <span className="text-gray-500">Purpose</span>
-            <span>{record.purpose}</span>
+            <span>{toSmartTradeLabel(record.purpose)}</span>
           </div>
 
           {record.description ? (
             <div className="flex flex-col justify-between gap-1">
               <span className="text-gray-500">Description</span>
               <span className="self-end text-[.70rem]">
-                {record.description}
+                {toSmartTradeLabel(record.description)}
               </span>
             </div>
           ) : null}

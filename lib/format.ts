@@ -1,3 +1,18 @@
+/* ── "AI" → "Smart Trade" display label ────────────────────────────────
+ * ব্যাকএন্ডের Transaction purpose/description-এ ঐতিহাসিক ডেটার সাথে
+ * সামঞ্জস্য রাখতে এখনও "Ai"/"AI" শব্দ ব্যবহার হয় (যেমন "Create Ai Account",
+ * "Ai Trade Profit")। ডাটাবেস/এনাম বদলানো ঝুঁকিপূর্ণ, তাই ইউজার প্যানেলে
+ * শুধু ডিসপ্লে-টাইমে "Smart Trade" হিসেবে দেখানো হয়।
+ * ────────────────────────────────────────────────────────────────────── */
+export const toSmartTradeLabel = (text?: string | null): string => {
+  if (!text) return "";
+  return text
+    .replace(/\bAi\s+Trade\b/g, "Smart Trade")
+    .replace(/\bAI\s+Trade\b/g, "Smart Trade")
+    .replace(/\bAi\b/g, "Smart Trade")
+    .replace(/\bAI\b/g, "Smart Trade");
+};
+
 export const formatPrice = (price: number): string => {
   if (!price && price !== 0) return '—';
   if (price >= 1000000) return (price / 1000000).toFixed(2) + 'M';

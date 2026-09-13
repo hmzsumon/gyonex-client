@@ -6,6 +6,7 @@
 import AccountPickerSheet from "@/components/ai-accounts/AccountPickerSheet";
 import PromoCard from "@/components/ai-accounts/PromoCard";
 import SelectedAccountCard from "@/components/ai-accounts/SelectedAccountCard";
+import TotalTradeIncomeCard from "@/components/ai-accounts/TotalTradeIncomeCard";
 
 import { setSelectedAccountId } from "@/redux/features/account/accountUISlice";
 import { useGetMyAiAccountsQuery } from "@/redux/features/ai-account/ai-accountApi";
@@ -37,6 +38,8 @@ export default function AiAccountsPage() {
         <div className="pt-6">
           <h1 className="text-xl ml-2 font-bold">Smart Trade Accounts</h1>
         </div>
+
+        <TotalTradeIncomeCard />
 
         <PromoCard />
 

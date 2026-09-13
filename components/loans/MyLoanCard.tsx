@@ -2,7 +2,7 @@
 
 import { formatUSD } from "@/lib/format";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown, ChevronUp, Timer } from "lucide-react";
+import { ChevronDown, ChevronUp, CreditCard, Timer } from "lucide-react";
 import { useState } from "react";
 import { STATUS_MAP } from "./loan.constants";
 import { getLoanType } from "./loan.helpers";
@@ -30,10 +30,20 @@ export default function MyLoanCard({
 
   return (
     <div className="overflow-hidden rounded-[26px] border border-white/10 bg-white/[0.03] shadow-[0_18px_60px_rgba(0,0,0,0.25)]">
-      <button
-        type="button"
+      {/* ── header row — plain div (not <button>) so the Repay <button> below
+             nests validly and works reliably on every device/browser ── */}
+      <div
+        role="button"
+        tabIndex={0}
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center gap-4 p-4 text-left transition hover:bg-white/[0.025]"
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            setOpen((v) => !v);
+          }
+        }}
+        aria-expanded={open}
+        className="flex w-full cursor-pointer items-center gap-4 p-4 text-left transition hover:bg-white/[0.025]"
       >
         <div
           className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl ring-1"
@@ -72,6 +82,7 @@ export default function MyLoanCard({
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-2">
+          {/* desktop/tablet: compact inline Repay button */}
           {loan.status === "active" && (
             <button
               type="button"
@@ -79,7 +90,7 @@ export default function MyLoanCard({
                 e.stopPropagation();
                 onRepay(loan._id);
               }}
-              className="hidden rounded-xl bg-blue-500 px-3 py-2 text-xs font-black text-white sm:block"
+              className="hidden rounded-xl bg-blue-500 px-3 py-2 text-xs font-black text-white transition hover:bg-blue-400 sm:block"
             >
               Repay
             </button>
@@ -90,7 +101,22 @@ export default function MyLoanCard({
             <ChevronDown className="h-4 w-4 text-white/35" />
           )}
         </div>
-      </button>
+      </div>
+
+      {/* ── mobile: full-width Repay bar — always visible, no need to expand ── */}
+      {loan.status === "active" && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onRepay(loan._id);
+          }}
+          className="flex w-full items-center justify-center gap-2 border-t border-white/10 bg-blue-500 px-4 py-3 text-sm font-black text-white transition hover:bg-blue-400 sm:hidden"
+        >
+          <CreditCard className="h-4 w-4" />
+          Repay {formatUSD(remaining)}
+        </button>
+      )}
 
       <AnimatePresence>
         {open && (

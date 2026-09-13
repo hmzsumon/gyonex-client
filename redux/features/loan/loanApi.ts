@@ -55,6 +55,15 @@ export const loanApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["Loans", "Wallets", "Wallet"],
     }),
+
+    /* ────────── USER: repayment fee % (admin-editable) ────────── */
+    getLoanRepaymentSettings: builder.query<
+      { success: boolean; settings: { repaymentFeePercent: number } },
+      void
+    >({
+      query: () => "/loans/repayment-settings",
+      providesTags: ["LoanSettings"],
+    }),
   }),
 });
 
@@ -65,4 +74,5 @@ export const {
   useGetWalletsForLoanQuery,
   useApplyForLoanMutation,
   useRepayLoanMutation,
+  useGetLoanRepaymentSettingsQuery,
 } = loanApi;

@@ -93,6 +93,10 @@ export const SocketContextProvider = ({
     socket.on("getUsers", onUsers);
     socket.on("notifications:new", onNewNotif);
     socket.on("notifications:count", onCount);
+    // ── কিছু পুরনো কন্ট্রোলার (withdraw approve/reject, send-money) শুধু
+    // "user-notification" পাঠায়, "notifications:new" পাঠায় না — তাই এটাও
+    // একই ভাবে হ্যান্ডেল করা হচ্ছে যাতে সাউন্ড/ব্যাজ মিস না হয়।
+    socket.on("user-notification", onNewNotif);
 
     // -------- NEW: trading live-sync listeners --------
     // 1) যখন কোনো পজিশন ওপেন/ক্লোজ/মডিফাই হয়
@@ -172,6 +176,7 @@ export const SocketContextProvider = ({
       socket.off("getUsers", onUsers);
       socket.off("notifications:new", onNewNotif);
       socket.off("notifications:count", onCount);
+      socket.off("user-notification", onNewNotif);
 
       socket.off("positions:changed", onPositionsChanged);
       socket.off("position:closed", onPositionClosed);

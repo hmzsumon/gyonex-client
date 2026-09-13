@@ -2,7 +2,6 @@
 import type { LucideIcon } from "lucide-react";
 import {
   Bot,
-  ChartCandlestick,
   Clock4,
   Download,
   Grid2x2,
@@ -12,6 +11,7 @@ import {
   Network,
   Settings,
   ShieldHalf,
+  Sparkles,
   SquareGanttChart,
   TicketMinus,
   Upload,
@@ -31,12 +31,7 @@ export type NavItem = {
 
 export const NAV_ITEMS: NavItem[] = [
   { key: "dashboard", label: "Dashboard", icon: Grid2x2, href: "/dashboard" },
-  {
-    key: "accounts",
-    label: "Live Accounts",
-    icon: ChartCandlestick,
-    href: "/accounts",
-  },
+
   {
     key: "ai-accounts",
     label: "Smart Trade",
@@ -68,6 +63,12 @@ export const NAV_ITEMS: NavItem[] = [
   { key: "deposit", label: "Deposit", icon: Download, href: "/deposit" },
   { key: "withdraw", label: "Withdraw", icon: Upload, href: "/withdraw" },
   { key: "lottery", label: "Lottery", icon: TicketMinus, href: "/lottary" },
+  {
+    key: "lucky-card",
+    label: "Lucky Card",
+    icon: Sparkles,
+    href: "/lucky-cards",
+  },
   { key: "loan", label: "Loan", icon: Landmark, href: "/loans" },
   {
     key: "rank-reward",

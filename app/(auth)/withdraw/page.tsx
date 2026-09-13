@@ -7,7 +7,10 @@ import {
   useGetMyKycQuery,
   useLoadUserQuery,
 } from "@/redux/features/auth/authApi";
-import { useCreateWithdrawRequestMutation } from "@/redux/features/withdraw/withdrawApi";
+import {
+  useCreateWithdrawRequestMutation,
+  useGetWithdrawSettingsQuery,
+} from "@/redux/features/withdraw/withdrawApi";
 import { fetchBaseQueryError } from "@/redux/services/helpers";
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -73,38 +76,52 @@ export default function WithdrawPage() {
   const [createWithdrawRequest, { isLoading: isCreateLoading }] =
     useCreateWithdrawRequestMutation();
 
+  /* ────────── admin-configured withdraw rules (fee/min/max/quick/limit) ────────── */
+  const { data: settingsData } = useGetWithdrawSettingsQuery();
+  const settings = settingsData?.settings;
+
+  // সেটিংস লোড হওয়ার আগে সেফ ডিফল্ট — লোড হয়ে গেলে অ্যাডমিনের মানই ব্যবহার হয়
+  const minWithdraw = settings?.minAmount ?? 50;
+  const maxWithdraw = settings?.maxAmount ?? 0; // 0 = কোনো সর্বোচ্চ সীমা নেই
+  const feeRate = (settings?.feePercent ?? 8) / 100;
+  const presetAmounts = settings?.quickAmounts?.length
+    ? settings.quickAmounts
+    : [50, 100, 200, 250, 300, 500];
+  const availableNetworks = settings?.networks?.length
+    ? settings.networks
+    : ["TRC20", "BEP20"];
+
   // Local form state
   const [amount, setAmount] = useState<string>("");
   const [walletAddress, setWalletAddress] = useState<string>("");
-  const [network, setNetwork] = useState<"TRC20" | "BEP20">("TRC20");
+  const [network, setNetwork] = useState<string>("TRC20");
   const [amountError, setAmountError] = useState<string>("");
 
   // OTP Drawer
   const [verifyOpen, setVerifyOpen] = useState(false);
 
-  // Derived
-  const minWithdraw = 50;
-  const feeRate = 0.08;
+  // সেটিংস লোড হবার পর নির্বাচিত নেটওয়ার্ক তালিকায় না থাকলে প্রথমটায় ফিরিয়ে আনি
+  useMemo(() => {
+    if (settings?.networks?.length && !settings.networks.includes(network)) {
+      setNetwork(settings.networks[0]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [settings]);
+
   const availableBalance = useMemo(
     () => Math.max(0, user?.m_balance || 0),
     [user?.m_balance],
   );
 
-  // balance < 200 হলে ইনপুট থেকে টাইপ নিষিদ্ধ
-  const canTypeCustomAmount = availableBalance >= 200;
-
-  // preset amounts
-  const presetAmounts = [50, 100, 200, 250, 300, 500];
-
   const withdrawFee = useMemo(() => {
     const n = parseFloat(amount || "0");
     return isNaN(n) ? 0 : +(n * feeRate).toFixed(2);
-  }, [amount]);
+  }, [amount, feeRate]);
 
   const actualReceipt = useMemo(() => {
     const n = parseFloat(amount || "0");
     return isNaN(n) ? 0 : +(n - n * feeRate).toFixed(2);
-  }, [amount]);
+  }, [amount, feeRate]);
 
   // Handlers
   const handleAmountChange = (value: string) => {
@@ -116,6 +133,8 @@ export default function WithdrawPage() {
       return setAmountError("Enter a valid amount");
     if (parsed < minWithdraw)
       return setAmountError(`Minimum withdrawal amount is ${minWithdraw} USDT`);
+    if (maxWithdraw > 0 && parsed > maxWithdraw)
+      return setAmountError(`Maximum withdrawal amount is ${maxWithdraw} USDT`);
     if (parsed > availableBalance)
       return setAmountError("Amount exceeds available balance");
 
@@ -237,8 +256,14 @@ export default function WithdrawPage() {
               </span>
 
               <span className="inline-flex items-center justify-center gap-2 rounded-full border border-emerald-700/30 bg-emerald-500/10 px-3 py-1 text-xs text-emerald-100 sm:text-[13px]">
-                Fee: <strong className="text-white/95">8%</strong>
+                Fee: <strong className="text-white/95">{feeRate * 100}%</strong>
               </span>
+
+              {maxWithdraw > 0 && (
+                <span className="inline-flex items-center justify-center gap-2 rounded-full border border-emerald-700/30 bg-emerald-500/10 px-3 py-1 text-xs text-emerald-100 sm:text-[13px]">
+                  Max: <strong className="text-white/95">${maxWithdraw}</strong>
+                </span>
+              )}
 
               <span className="col-span-2 inline-flex items-center justify-between gap-2 rounded-full border border-emerald-700/30 bg-emerald-500/10 px-3 py-1 text-xs text-emerald-100 sm:col-span-1 sm:justify-center sm:text-[13px]">
                 <span>Available:</span>
@@ -284,7 +309,7 @@ export default function WithdrawPage() {
                               : "border-neutral-700 bg-neutral-900/70 text-neutral-200 hover:border-neutral-500",
                         ].join(" ")}
                       >
-                        {preset === 200 ? "200+" : preset}
+                        {preset}
                       </button>
                     );
                   })}
@@ -298,31 +323,19 @@ export default function WithdrawPage() {
                     type="number"
                     inputMode="decimal"
                     value={amount}
-                    readOnly={!canTypeCustomAmount}
-                    onChange={(e) => {
-                      // balance < 200 হলে টাইপ allow করবে না
-                      if (!canTypeCustomAmount) return;
-                      handleAmountChange(e.target.value);
-                    }}
-                    placeholder={
-                      canTypeCustomAmount
-                        ? `${minWithdraw} or more`
-                        : "Select 50, 100, 200 or 250,300,500+"
-                    }
-                    className={`w-full rounded-lg border border-neutral-800 bg-neutral-900/70 px-9 py-2.5 text-sm text-neutral-100 outline-none placeholder:text-neutral-500 focus:ring-2 focus:ring-emerald-600/40 ${
-                      !canTypeCustomAmount
-                        ? "cursor-not-allowed bg-neutral-900/80"
-                        : ""
-                    }`}
+                    onChange={(e) => handleAmountChange(e.target.value)}
+                    placeholder={`${minWithdraw}${maxWithdraw > 0 ? ` - ${maxWithdraw}` : " or more"}`}
+                    className="w-full rounded-lg border border-neutral-800 bg-neutral-900/70 px-9 py-2.5 text-sm text-neutral-100 outline-none placeholder:text-neutral-500 focus:ring-2 focus:ring-emerald-600/40"
                     step="0.01"
                     min={minWithdraw}
+                    max={maxWithdraw > 0 ? maxWithdraw : undefined}
                   />
                 </div>
 
                 {amount && !amountError && (
                   <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-neutral-300 md:grid-cols-3">
                     <div className="rounded-lg border border-neutral-800 bg-neutral-900/50 px-3 py-1.5">
-                      Fee (8%):{" "}
+                      Fee ({feeRate * 100}%):{" "}
                       <span className="font-semibold text-emerald-300">
                         ${withdrawFee}
                       </span>
@@ -352,7 +365,7 @@ export default function WithdrawPage() {
                   Select network
                 </label>
                 <div className="grid grid-cols-2 gap-2">
-                  {(["TRC20", "BEP20"] as const).map((n) => {
+                  {availableNetworks.map((n) => {
                     const active = network === n;
                     return (
                       <button
@@ -470,7 +483,8 @@ export default function WithdrawPage() {
                       Minimum withdrawal
                     </div>
                     <div className="text-neutral-400">
-                      ${minWithdraw} USDT required for all withdrawals.
+                      ${minWithdraw} USDT required for all withdrawals
+                      {maxWithdraw > 0 ? `, up to $${maxWithdraw} USDT.` : "."}
                     </div>
                   </div>
                 </div>
@@ -484,7 +498,7 @@ export default function WithdrawPage() {
                       Network fees
                     </div>
                     <div className="text-neutral-400">
-                      8% flat fee applies to all {network} transactions.
+                      {feeRate * 100}% flat fee applies to all {network} transactions.
                     </div>
                   </div>
                 </div>
