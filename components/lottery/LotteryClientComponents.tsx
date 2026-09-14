@@ -390,39 +390,33 @@ function LotteryTicketCard({ ticket }: { ticket: LotteryTicket }) {
 
 /* ────────── client lottery winners list component ────────── */
 export function LotteryWinnersList({ winners }: { winners: LotteryWinner[] }) {
-  if (!winners.length)
-    return (
-      <LotteryEmpty
-        title="No winners announced"
-        text="Winner list will appear after draw completion."
-      />
-    );
-
-  return (
-    <div className="grid gap-3 md:grid-cols-2">
-      {winners.map((winner) => (
-        <div
-          key={winner._id}
-          className="rounded-2xl border border-amber-300/20 bg-[#0E1014] p-4"
-        >
-          <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-amber-300/10 text-amber-200">
-              <Trophy className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="font-black text-white">{winner.maskedName}</p>
-              <p className="text-xs text-white/45">
-                {winner.prizeTitle || "Prize"} · {winner.ticketNo}
-              </p>
-            </div>
-            <p className="ml-auto text-sm font-black text-amber-200">
-              {formatMoney(winner.prizeAmount, winner.prizeAsset)}
-            </p>
+  if (!winners.length) return <LotteryEmpty title="No winners announced" text="Confirmed lottery results will appear here after the draw." />;
+  const groups = new Map<string, LotteryWinner[]>();
+  for (const winner of winners) {
+    const key = winner.eventId?._id || winner.drawnAt;
+    groups.set(key, [...(groups.get(key) || []), winner]);
+  }
+  return <div className="space-y-5">
+    {Array.from(groups.entries()).map(([id, entries]) => {
+      const sorted = [...entries].sort((a, b) => (a.prizeRank || 1) - (b.prizeRank || 1));
+      const event = sorted[0].eventId;
+      return <section key={id} className="overflow-hidden rounded-3xl border border-amber-300/20 bg-[#0E1014]">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 bg-gradient-to-r from-amber-300/10 to-transparent p-5 sm:p-6">
+          <div className="flex items-center gap-3"><div className="rounded-2xl bg-amber-300/15 p-3 text-amber-200"><Trophy className="h-6 w-6" /></div>
+            <div><p className="text-[10px] font-bold uppercase tracking-widest text-amber-200">Official results · {event?.eventType ? EVENT_LABEL[event.eventType] : "Lottery"}</p><h2 className="mt-1 text-lg font-black text-white">{event?.title || "Lottery results"}</h2><p className="mt-1 text-xs text-white/45">Drawn {formatDate(sorted[0].drawnAt)}</p></div>
           </div>
+          <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1.5 text-xs font-bold text-emerald-300">Results confirmed</span>
         </div>
-      ))}
-    </div>
-  );
+        <ol className="divide-y divide-white/5">
+          {sorted.map(winner => <li key={winner._id} className="flex flex-wrap items-center gap-3 p-4 sm:gap-4 sm:p-5">
+            <div className={"flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl text-sm font-black " + ((winner.prizeRank || 1) === 1 ? "bg-amber-300 text-black shadow-lg shadow-amber-300/10" : "bg-white/5 text-white/70")}>#{winner.prizeRank || 1}</div>
+            <div className="min-w-0 flex-1"><p className="break-words font-bold text-white">{winner.maskedName}</p><p className="mt-1 text-xs text-amber-200/80">{winner.prizeTitle || "Prize"}</p><p className="mt-1 break-all font-mono text-xs text-white/45">Ticket: {winner.ticketNo}</p></div>
+            <div className="ml-auto text-right"><p className="text-base font-black text-amber-200 sm:text-xl">{formatMoney(winner.prizeAmount, winner.prizeAsset)}</p><p className="mt-1 text-[10px] font-bold uppercase tracking-wider text-emerald-300/70">Prize awarded</p></div>
+          </li>)}
+        </ol>
+      </section>;
+    })}
+  </div>;
 }
 
 /* ────────── client lottery small info component ────────── */
