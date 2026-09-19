@@ -3,7 +3,7 @@ import axios, { AxiosInstance, InternalAxiosRequestConfig } from "axios";
 
 const BASE_URL =
   process.env.NEXT_PUBLIC_API_URL ||
-  "https://gyonex-api-8bd965ca374f.herokuapp.com/api/v1";
+  "https://gyonex-38be329903dc.herokuapp.com/api/v1";
 
 // ─── Axios Instance ────────────────────────────────────────────────────────────
 export const apiClient: AxiosInstance = axios.create({

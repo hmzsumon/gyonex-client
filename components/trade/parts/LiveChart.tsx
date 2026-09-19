@@ -35,7 +35,7 @@ export type ChartExpose = {
 // চাইলে env দিয়ে দাও: NEXT_PUBLIC_API_BASE
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE ||
-  "https://cgfx-api-571c8ffe2dd2.herokuapp.com";
+  "https://gyonex-38be329903dc.herokuapp.com";
 
 // number → Logical (branded) কাস্ট helper
 const toLogical = (n: number) => n as unknown as Logical;

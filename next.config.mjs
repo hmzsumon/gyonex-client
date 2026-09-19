@@ -27,7 +27,7 @@ const nextConfig = {
       {
         source: "/api/v1/:path*",
         destination:
-          "https://gyonex-api-8bd965ca374f.herokuapp.com/api/v1/:path*",
+          "https://gyonex-38be329903dc.herokuapp.com/api/v1/:path*",
       },
     ];
   },
