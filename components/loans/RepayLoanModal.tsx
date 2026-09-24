@@ -2,7 +2,6 @@
 
 import { formatUSD } from "@/lib/format";
 import {
-  useGetLoanRepaymentSettingsQuery,
   useRepayLoanMutation,
 } from "@/redux/features/loan/loanApi";
 import { motion } from "framer-motion";
@@ -11,8 +10,7 @@ import { useMemo, useState } from "react";
 import toast from "react-hot-toast";
 
 /* ─────────────────────────────────────────────────────────────
-   Repay modal — repayment amount + admin-configurable fee %
-   preview (fee is added on top, charged from main balance).
+   Repay modal — no additional service fee.
 ────────────────────────────────────────────────────────────── */
 export default function RepayLoanModal({
   loan,
@@ -23,8 +21,7 @@ export default function RepayLoanModal({
 }) {
   const [amount, setAmount] = useState("");
   const [repayLoan, repayMutation] = useRepayLoanMutation();
-  const { data: settingsData } = useGetLoanRepaymentSettingsQuery();
-  const feePercent = settingsData?.settings.repaymentFeePercent ?? 8;
+  const feePercent = 0;
   const remaining = Math.max(0, (loan.totalRepayable || 0) - (loan.totalPaid || 0));
 
   const payAmount = Number(amount) || 0;

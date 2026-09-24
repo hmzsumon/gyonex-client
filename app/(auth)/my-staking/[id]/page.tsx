@@ -8,6 +8,7 @@ import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 
 import {
+  useGetStakingPlansQuery,
   useCancelMyStakingSubscriptionMutation,
   useGetMyStakingProfitLogsQuery,
   useGetMyStakingSubscriptionByIdQuery,
@@ -32,6 +33,8 @@ export default function StakingDetailsPage() {
   const [cancelSub, { isLoading: canceling }] =
     useCancelMyStakingSubscriptionMutation();
 
+  const { data: plansData } = useGetStakingPlansQuery();
+  const cancellationFee = plansData?.settings?.cancellationFeePercent;
   const sub = subRes?.item;
   const logs = logsRes?.items ?? [];
 
@@ -55,15 +58,16 @@ export default function StakingDetailsPage() {
       : "bg-white/10 text-white/70 border-white/10";
 
   const onCancel = async () => {
-    if (sub.status !== "active") return;
+    if (sub.status !== "active" || cancellationFee == null) return;
 
     const res = await MySwal.fire({
       title: "Cancel Subscription?",
       html: `
         <div style="text-align:left; line-height:1.5">
          <div style="opacity:.85; font-size:13px">
-        If you cancel, a small portion of your <b>principal</b> will be deducted
-        and the remaining amount will be refunded to your SpotWallet.
+        Cancellation fee: <b>${cancellationFee}%</b> of principal.
+        Estimated refund: <b>${fmt(sub.principalQty * (1 - cancellationFee / 100))}</b>.
+        The remaining principal will be refunded to your ${sub.symbol === "USDT" ? "main balance" : "SpotWallet"}.
          </div>
       <div style="margin-top:8px; opacity:.7; font-size:12px">
         • This action is irreversible<br/>
@@ -103,7 +107,7 @@ export default function StakingDetailsPage() {
 
       await MySwal.fire({
         title: "Cancelled ✅",
-        text: "Principal adjusted & refunded to SpotWallet.",
+        text: "Principal refunded after the cancellation fee.",
         icon: "success",
         timer: 1400,
         showConfirmButton: false,
@@ -206,7 +210,7 @@ export default function StakingDetailsPage() {
           {sub.status === "active" && (
             <button
               onClick={onCancel}
-              disabled={canceling}
+              disabled={canceling || cancellationFee == null}
               className={[
                 "mt-4 w-full rounded-xl py-3 text-sm font-semibold",
                 "flex items-center justify-center gap-2",

@@ -104,7 +104,14 @@ export type StakingLog = {
   updatedAt?: string;
 };
 
-type ApiListResponse<T> = { success: boolean; items: T[] };
+export type StakingSettings = {
+  stakingEnabled: boolean;
+  profitEnabled: boolean;
+  cancellationFeePercent: number;
+  profitDays: number[];
+  timezone: string;
+};
+type ApiListResponse<T> = { success: boolean; items: T[]; settings?: StakingSettings };
 type ApiItemResponse<T> = { success: boolean; item: T };
 
 type SubscribePayload = {

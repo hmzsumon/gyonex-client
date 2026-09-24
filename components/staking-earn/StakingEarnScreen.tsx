@@ -22,7 +22,6 @@ type EarnAsset = {
   iconSrc?: string;
 };
 
-const MIN_AMOUNT = 0.00001;
 const MAX_DECIMALS = 8;
 
 const toNumber = (v: string | null, fallback = 0) => {
@@ -105,15 +104,7 @@ const StakingEarnScreen = () => {
       }));
     }
 
-    return [
-      { id: "1d", labelTop: "1 Day", labelBottom: "Daily", apr: 0.32 },
-      { id: "7d", labelTop: "7 Days", labelBottom: "Daily", apr: 1.0 },
-      { id: "15d", labelTop: "15 Days", labelBottom: "Daily", apr: 1.17 },
-      { id: "30d", labelTop: "30 Days", labelBottom: "Daily", apr: 1.3 },
-      { id: "90d", labelTop: "90 Days", labelBottom: "Daily", apr: 1.4 },
-      { id: "180d", labelTop: "180 Days", labelBottom: "Daily", apr: 1.6 },
-      { id: "360d", labelTop: "360 Days", labelBottom: "Daily", apr: 1.8 },
-    ];
+    return [];
   }, [plansData?.items]);
 
   const [selectedTermId, setSelectedTermId] = useState<string>("1d");
@@ -134,6 +125,7 @@ const StakingEarnScreen = () => {
   }, [selectedTerm?.apr]);
 
   const maxBalance = asset.balance;
+  const MIN_AMOUNT = Math.max(0.00000001, plansData?.items.find(p => `${p.termDays}d` === selectedTermId)?.minAmount ?? 1);
 
   const amountNum = Number(amount);
   const isNumeric = amount.trim().length > 0 && Number.isFinite(amountNum);
@@ -144,7 +136,7 @@ const StakingEarnScreen = () => {
   const amountValid =
     isNumeric && amountNum >= MIN_AMOUNT && amountNum <= maxBalance;
 
-  const canConfirm = amountValid && maxBalance >= MIN_AMOUNT;
+  const canConfirm = amountValid && maxBalance >= MIN_AMOUNT && !!selectedTerm && !plansLoading && !plansError && plansData?.settings?.stakingEnabled !== false;
 
   const availText = `Available: ${maxBalance.toLocaleString(undefined, {
     maximumFractionDigits: 8,
@@ -167,7 +159,7 @@ const StakingEarnScreen = () => {
   };
 
   const onConfirm = async () => {
-    if (!amount.trim()) return;
+    if (!canConfirm || !amount.trim()) return;
 
     const n = Number(amount);
     if (!Number.isFinite(n)) {
@@ -218,6 +210,12 @@ const StakingEarnScreen = () => {
         />
       </div>
 
+      {plansData?.settings && <div className="mx-2 mt-4 rounded-xl border border-white/10 p-3 text-sm text-white/70">
+        <p>Staking: {plansData.settings.stakingEnabled ? "Active" : "Paused"} · Profit: {plansData.settings.profitEnabled ? "Active" : "Paused"}</p>
+        <p className="mt-1">Profit days: {plansData.settings.profitDays.map(d => ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d]).join(", ") || "None"} (Bangladesh time)</p>
+        <p className="mt-1">Cancellation fee: {plansData.settings.cancellationFeePercent}% of principal. Unchecked or paused days earn no profit.</p>
+      </div>}
+      {!plansLoading && !plansError && terms.length === 0 && <p className="p-4 text-amber-300">No active staking packages are available.</p>}
       <div className="px-2 mt-6">
         <TermSelector
           terms={terms}

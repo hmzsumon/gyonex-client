@@ -49,6 +49,11 @@ export default function SidebarUserBlock() {
           </div>
         </div>
       </div>
+      <div className="mt-3 text-sm font-medium" role="status">
+        Status: <span className={user?.is_active ? "text-emerald-400" : "text-amber-400"}>
+          {user?.is_active ? "Active" : "Inactive"}
+        </span>
+      </div>
       <div className="mt-3 space-y-1">
         <button
           type="button"
