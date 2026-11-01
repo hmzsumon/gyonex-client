@@ -3,6 +3,7 @@
 import { formatUSD } from "@/lib/format";
 import {
   useRepayLoanMutation,
+  useGetLoanRepaymentSettingsQuery,
 } from "@/redux/features/loan/loanApi";
 import { motion } from "framer-motion";
 import { Loader2, RefreshCw } from "lucide-react";
@@ -10,7 +11,7 @@ import { useMemo, useState } from "react";
 import toast from "react-hot-toast";
 
 /* ─────────────────────────────────────────────────────────────
-   Repay modal — no additional service fee.
+   Repay modal — admin-configured service fee.
 ────────────────────────────────────────────────────────────── */
 export default function RepayLoanModal({
   loan,
@@ -21,7 +22,8 @@ export default function RepayLoanModal({
 }) {
   const [amount, setAmount] = useState("");
   const [repayLoan, repayMutation] = useRepayLoanMutation();
-  const feePercent = 0;
+  const { data: settings, isLoading: settingsLoading, isError: settingsError } = useGetLoanRepaymentSettingsQuery(undefined, { refetchOnMountOrArgChange: true });
+  const feePercent = settings?.settings.repaymentFeePercent ?? 8;
   const remaining = Math.max(0, (loan.totalRepayable || 0) - (loan.totalPaid || 0));
 
   const payAmount = Number(amount) || 0;
@@ -110,7 +112,7 @@ export default function RepayLoanModal({
         <button
           type="button"
           onClick={handleRepay}
-          disabled={repayMutation.isLoading || !amount || Number(amount) <= 0}
+          disabled={settingsLoading || settingsError || repayMutation.isLoading || !amount || Number(amount) <= 0}
           className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-500 to-blue-500 py-3 text-sm font-black text-white disabled:opacity-45"
         >
           {repayMutation.isLoading ? (
