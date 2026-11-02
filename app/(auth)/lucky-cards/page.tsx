@@ -33,7 +33,7 @@ export default function LuckyCardsPage() {
   const [tab, setTab] = useState<"shop" | "cards">("shop");
   const [busyPkg, setBusyPkg] = useState<string | null>(null);
 
-  const { data: shopData, isLoading } = useGetLuckyShopQuery();
+  const { data: shopData, isLoading, refetch: refetchShop } = useGetLuckyShopQuery(undefined, { refetchOnMountOrArgChange: true, refetchOnFocus: true, pollingInterval: 30000 });
   const { data: unopenedData, refetch: refetchUnopened } = useGetMyLuckyCardsQuery("unopened");
   const { data: openedData } = useGetMyLuckyCardsQuery("opened");
   const { data: purchasesData } = useGetMyLuckyPurchasesQuery();
@@ -52,11 +52,12 @@ export default function LuckyCardsPage() {
     }
     setBusyPkg(packageId);
     try {
-      const res = await buy({ packageId }).unwrap();
+      const res = await buy({ packageId, expectedPrice: price }).unwrap();
       toast.success(`${res.purchase.quantity} cards added`);
       await refetchUnopened();
       setTab("cards");
     } catch (e) {
+      void refetchShop();
       toast.error(getApiMessage(e, "Purchase failed"));
     } finally {
       setBusyPkg(null);

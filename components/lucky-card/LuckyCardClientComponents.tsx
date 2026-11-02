@@ -131,6 +131,7 @@ export function LuckyShopList({
                   )}
                   <p className="text-lg font-black text-white">{p.totalCards}</p>
                   <p className="text-[10px] text-white/40">cards</p>
+                  {p.bonusCards > 0 && <p className="text-[10px] text-emerald-300">{p.cardCount} + {p.bonusCards} free</p>}
                   {hasOffer && (
                     <p className="text-[10px] font-medium text-white/30 line-through">
                       {usdt(p.regularPrice)}

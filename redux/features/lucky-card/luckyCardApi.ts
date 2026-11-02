@@ -20,10 +20,10 @@ export const luckyCardApi = apiSlice.injectEndpoints({
         purchase: any;
         cards: LuckyCardRow[];
       },
-      { packageId: string }
+      { packageId: string; expectedPrice?: number }
     >({
       query: (body) => ({ url: "/lucky/buy", method: "POST", body }),
-      invalidatesTags: ["LuckyCard", "LuckyCards", "Wallet", "Wallets"],
+      invalidatesTags: ["LuckyCard", "LuckyCards", "Wallet", "Wallets", "User"],
     }),
 
     getMyLuckyCards: builder.query<
