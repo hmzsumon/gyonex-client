@@ -25,7 +25,16 @@ export interface IAccount {
   currency: "USD" | "BDT";
   balance: number;
   isDefault: boolean;
-  status: "active" | "closed" | "inactive";
+  status: "active" | "closed" | "inactive" | "expired";
+  createdAt: string;
+  earnedProfit: number;
+  profitCap: number;
+  profitMultiplier: number;
+  profitProgress: number;
+  cancellationFeePercent: number;
+  cancelUntil: string | null;
+  canCancel: boolean;
+  cancelledAt?: string;
   mode: "ai";
   plan: string;
   equity: number;

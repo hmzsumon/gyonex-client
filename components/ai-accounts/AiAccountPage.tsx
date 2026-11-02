@@ -13,7 +13,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 export default function AiAccountsPage() {
-  const { data, isLoading } = useGetMyAiAccountsQuery();
+  const { data, isLoading } = useGetMyAiAccountsQuery(undefined, { pollingInterval: 30000, refetchOnFocus: true });
   const [openPicker, setOpenPicker] = useState(false);
 
   const dispatch = useDispatch();

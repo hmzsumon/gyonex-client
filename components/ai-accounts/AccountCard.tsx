@@ -85,7 +85,7 @@ export default function AccountCard({
       </div>
 
       {/* ── Inactive alert ── */}
-      {acc.status !== "active" && (
+      {acc.status !== "active" && acc.status !== "expired" && !acc.cancelledAt && (
         <div>
           <div className="mt-3 text-center rounded-lg bg-yellow-800/20 px-3 py-2 text-xs text-yellow-300 border border-yellow-700">
             <h2>
@@ -109,6 +109,10 @@ export default function AccountCard({
         </div>
       )}
 
+      {(acc.status === "expired" || !!acc.cancelledAt) && <div className="mt-3 rounded-xl border border-amber-800 bg-amber-900/20 p-4 text-sm text-amber-200">
+        {acc.status === "expired" ? "Account expired. Profit and generation earnings have stopped." : "This account was cancelled."}
+        <button onClick={() => setOpenWizard(true)} className="mt-3 block rounded-lg bg-emerald-500 px-4 py-2 font-semibold text-black">Open a new Smart Trade account</button>
+      </div>}
       {/* Live equity */}
       <div className="mt-4 flex items-center justify-between">
         <AiAccountLiveEquity

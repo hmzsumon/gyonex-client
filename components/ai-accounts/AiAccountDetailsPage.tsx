@@ -8,7 +8,7 @@ import {
   IAccount,
   useCancelAiAccountMutation,
 } from "@/redux/features/ai-account/ai-accountApi";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 /* ────────── helpers ────────── */
@@ -23,6 +23,7 @@ function StatusBadge({ status }: { status: string }) {
   const map: Record<string, string> = {
     active: "bg-green-900/30 text-green-400 border border-green-800",
     inactive: "bg-red-900/30 text-red-400 border border-red-800",
+    expired: "bg-amber-900/30 text-amber-300 border border-amber-800",
     closed: "bg-neutral-800 text-neutral-400 border border-neutral-700",
   };
   const label = status === "inactive" ? "Cancelled" : status.toUpperCase();
@@ -50,7 +51,8 @@ function CancelModal({
   const [cancelAccount, { isLoading }] = useCancelAiAccountMutation();
 
   const planPrice = Number(acc.planPrice || 0);
-  const fee = Math.round(planPrice * 0.25 * 100) / 100;
+  const feePercent = acc.cancellationFeePercent;
+  const fee = Math.round(planPrice * feePercent) / 100;
   const refund = Math.round((planPrice - fee) * 100) / 100;
 
   const handleConfirm = async () => {
@@ -80,7 +82,7 @@ function CancelModal({
         <p className="text-sm text-neutral-400 mb-5">
           Cancelling this account will deduct a{" "}
           <span className="font-semibold text-red-400">
-            25% cancellation fee
+            {feePercent}% cancellation fee
           </span>{" "}
           from your plan price. The remaining balance will be credited to your
           main wallet immediately.
@@ -95,7 +97,7 @@ function CancelModal({
             </span>
           </div>
           <div className="flex justify-between">
-            <span className="text-neutral-400">Cancellation Fee (25%)</span>
+            <span className="text-neutral-400">Cancellation Fee ({feePercent}%)</span>
             <span className="text-red-400 font-medium">− {fmt(fee)} USDT</span>
           </div>
           <div className="border-t border-neutral-700 pt-2.5 flex justify-between">
@@ -147,13 +149,15 @@ export default function AiAccountDetailsPage({
 }) {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const { items: closedPositions, loading: posLoading } =
-    useFilteredClosedPositions();
+    useFilteredClosedPositions(acc._id);
 
   /* total profit from all closed positions for this account */
-  const totalProfit = closedPositions.reduce((sum, p) => {
-    const pnl = Number(p.pnlUsd ?? p.profit ?? 0);
-    return sum + pnl;
-  }, 0);
+  const totalProfit = Number(acc.earnedProfit || 0);
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => { const timer = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(timer); }, []);
+  const canCancel = acc.canCancel && !!acc.cancelUntil && now < new Date(acc.cancelUntil).getTime();
+  const cap = Number(acc.profitCap || acc.planPrice * (acc.planPrice <= 10000 ? 2.5 : 3.5));
+  const progress = cap > 0 ? Math.min(100, totalProfit / cap * 100) : 0;
 
   const totalWinning = closedPositions.filter(
     (p) => !p.is_loss && Number(p.pnlUsd ?? p.profit ?? 0) > 0,
@@ -324,7 +328,7 @@ export default function AiAccountDetailsPage({
         </div>
 
         {/* ── Cancel Button — only for active accounts ── */}
-        {acc.status === "active" && (
+        {acc.status === "active" && canCancel && (
           <button
             onClick={() => setShowCancelModal(true)}
             className="w-full rounded-xl border border-red-900 bg-red-900/20 py-3.5 text-sm font-semibold text-red-400 hover:bg-red-900/40 transition-colors"
@@ -333,6 +337,17 @@ export default function AiAccountDetailsPage({
           </button>
         )}
 
+        {((acc.status === "active" && !canCancel) || acc.status === "expired") && (
+          <section className="rounded-xl border border-emerald-900 bg-neutral-900 p-5" aria-label="Smart Trade profit progress">
+            <div className="mb-3 flex justify-between text-sm"><span>Profit progress · {acc.profitMultiplier || (planPrice <= 10000 ? 2.5 : 3.5)}× target</span><strong>{fmt(progress)}%</strong></div>
+            <div role="progressbar" aria-label="Earned profit toward expiry" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(progress)} className="h-3 overflow-hidden rounded-full bg-neutral-800">
+              <div className="h-full rounded-full bg-emerald-400 transition-all" style={{ width: progress + "%" }} />
+            </div>
+            <p className="mt-3 text-sm text-neutral-300">{fmt(totalProfit)} / {fmt(cap)} USDT earned from your 60% share</p>
+            <p className="mt-2 text-xs text-neutral-400">{acc.status === "expired" ? "Account expired. Profit and generation earnings are disabled. Open a new Smart Trade account to renew." : "The first month has ended. Cancellation is closed. This account expires when the profit target is reached."}</p>
+          </section>
+        )}
+        {acc.status === "expired" && <button onClick={onBack} className="mt-3 w-full rounded-xl bg-emerald-500 py-3 font-semibold text-black">Back to accounts to renew</button>}
         {acc.status === "inactive" && (
           <div className="w-full rounded-xl border border-neutral-800 bg-neutral-900/40 py-3.5 text-center text-sm text-neutral-500">
             This account has been cancelled
@@ -341,7 +356,7 @@ export default function AiAccountDetailsPage({
       </div>
 
       {/* ── Cancel Confirmation Modal ── */}
-      {showCancelModal && (
+      {showCancelModal && canCancel && (
         <CancelModal
           acc={acc}
           onClose={() => setShowCancelModal(false)}

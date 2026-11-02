@@ -35,7 +35,7 @@ export default function AccountPickerSheet({
   if (!open) return null;
   const items = (data?.items ?? []) as IAccount[];
 
-  const filtered = items.filter((a) => a.status === currentTab);
+  const filtered = items.filter((a) => a.status === currentTab || (currentTab === "closed" && a.status === "expired"));
 
   return (
     <div className="fixed inset-0 z-[60]">

@@ -6,7 +6,7 @@ import type { RootState } from "@/redux/store";
 import { useSelector } from "react-redux";
 
 export function useSelectedAiAccount() {
-  const { data, isLoading, isFetching } = useGetMyAiAccountsQuery();
+  const { data, isLoading, isFetching } = useGetMyAiAccountsQuery(undefined, { pollingInterval: 30000, refetchOnFocus: true });
   const selectedId = useSelector(
     (s: RootState) => s.accountUI.selectedAccountId
   );

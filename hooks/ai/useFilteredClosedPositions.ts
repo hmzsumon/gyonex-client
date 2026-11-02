@@ -45,19 +45,19 @@ function toUiPosition(p: any): Position {
 }
 
 /** selected account-এর plan অনুযায়ী open items + count + loading */
-export function useFilteredClosedPositions() {
+export function useFilteredClosedPositions(accountId?: string) {
   const { account, loading: accountLoading } = useSelectedAiAccount();
   const { data, isLoading, isFetching } = useGetClosedAiPositionsQuery();
   // console.log({ data });
 
   const items: Position[] = useMemo(() => {
-    if (!account) return [];
+    if (!account && !accountId) return [];
     const raw: any[] = (data?.items ?? []) as any[];
-    const plan = String(account.plan || "").toLowerCase();
+    const id = accountId || account?._id;
     return raw
-      .filter((p) => String(p.plan || "").toLowerCase() === plan)
+      .filter((p) => String(p.accountId?._id || p.accountId || "") === String(id))
       .map(toUiPosition);
-  }, [data?.items, account]);
+  }, [data?.items, account, accountId]);
 
   const loading = accountLoading || isLoading || isFetching;
   return { items, count: items.length, loading };

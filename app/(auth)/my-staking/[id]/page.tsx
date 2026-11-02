@@ -34,7 +34,7 @@ export default function StakingDetailsPage() {
     useCancelMyStakingSubscriptionMutation();
 
   const { data: plansData } = useGetStakingPlansQuery();
-  const cancellationFee = 10;
+  const cancellationFee = plansData?.settings?.cancellationFeePercent;
   const sub = subRes?.item;
   const logs = logsRes?.items ?? [];
 
@@ -173,7 +173,7 @@ export default function StakingDetailsPage() {
                 </div>
                 <div className="mt-1 text-xs text-white/55">
                   {new Date(sub.startedAt).toLocaleDateString()} →{" "}
-                  Expires at {sub.principalQty <= 10000 ? "2.5" : "3.5"}× earned profit
+                  {new Date(sub.endAt).toLocaleDateString()}
                 </div>
               </div>
             </div>
@@ -202,13 +202,12 @@ export default function StakingDetailsPage() {
             <div className="rounded-xl bg-black/20 border border-white/10 p-3">
               <div className="text-xs text-white/55">Paid Days</div>
               <div className="mt-1 text-sm font-semibold">
-                {sub.paidDays} paid days
+                {sub.paidDays}/{sub.termDays}
               </div>
             </div>
           </div>
 
-          {sub.status === "completed" && <a href="/staking-earn" className="mt-4 block rounded-xl bg-emerald-600 p-3 text-center">Expired — renew with a new package</a>}
-          {sub.status === "active" && Date.now() < (() => { const d = new Date(new Date(sub.startedAt).getTime() + 21600000), day = d.getUTCDate(); d.setUTCDate(1); d.setUTCMonth(d.getUTCMonth()+1); d.setUTCDate(Math.min(day,new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth()+1,0)).getUTCDate())); return d.getTime()-21600000; })() && (
+          {sub.status === "active" && (
             <button
               onClick={onCancel}
               disabled={canceling || cancellationFee == null}
