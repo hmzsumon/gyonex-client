@@ -1,9 +1,8 @@
 "use client";
 
 import { formatUSD } from "@/lib/format";
-import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown, ChevronUp, CreditCard, Timer } from "lucide-react";
-import { useState } from "react";
+import { motion } from "framer-motion";
+import { CreditCard, Timer } from "lucide-react";
 import { STATUS_MAP } from "./loan.constants";
 import { getLoanType } from "./loan.helpers";
 import { useCountdown } from "./useCountdown";
@@ -18,7 +17,6 @@ export default function MyLoanCard({
   loan: any;
   onRepay: (id: string) => void;
 }) {
-  const [open, setOpen] = useState(false);
   const type = getLoanType(loan.loanType);
   const Icon = type.icon;
   const status = STATUS_MAP[loan.status] || STATUS_MAP.pending;
@@ -30,21 +28,7 @@ export default function MyLoanCard({
 
   return (
     <div className="overflow-hidden rounded-[26px] border border-white/10 bg-white/[0.03] shadow-[0_18px_60px_rgba(0,0,0,0.25)]">
-      {/* ── header row — plain div (not <button>) so the Repay <button> below
-             nests validly and works reliably on every device/browser ── */}
-      <div
-        role="button"
-        tabIndex={0}
-        onClick={() => setOpen((v) => !v)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            setOpen((v) => !v);
-          }
-        }}
-        aria-expanded={open}
-        className="flex w-full cursor-pointer items-center gap-4 p-4 text-left transition hover:bg-white/[0.025]"
-      >
+      <div className="flex w-full items-center gap-4 p-4 text-left">
         <div
           className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl ring-1"
           style={{
@@ -83,7 +67,7 @@ export default function MyLoanCard({
         </div>
         <div className="flex shrink-0 items-center gap-2">
           {/* desktop/tablet: compact inline Repay button */}
-          {loan.status === "active" && (
+          {["active", "defaulted"].includes(loan.status) && (
             <button
               type="button"
               onClick={(e) => {
@@ -95,16 +79,11 @@ export default function MyLoanCard({
               Repay
             </button>
           )}
-          {open ? (
-            <ChevronUp className="h-4 w-4 text-white/35" />
-          ) : (
-            <ChevronDown className="h-4 w-4 text-white/35" />
-          )}
         </div>
       </div>
 
       {/* ── mobile: full-width Repay bar — always visible, no need to expand ── */}
-      {loan.status === "active" && (
+      {["active", "defaulted"].includes(loan.status) && (
         <button
           type="button"
           onClick={(e) => {
@@ -118,14 +97,7 @@ export default function MyLoanCard({
         </button>
       )}
 
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            className="border-t border-white/10"
-          >
+      <div className="border-t border-white/10">
             <div className="grid gap-4 p-4 md:grid-cols-2">
               <div className="rounded-2xl bg-black/20 p-4 ring-1 ring-white/10">
                 <p className="mb-3 text-[11px] font-black uppercase tracking-widest text-white/35">
@@ -133,7 +105,7 @@ export default function MyLoanCard({
                 </p>
                 {[
                   ["Period", `${loan.repaymentPeriodDays || 0} days`],
-                  ["Rate", `${((loan.interestRate || 0.06) * 100).toFixed(0)}%/month`],
+                  ["Rate", `${((loan.interestRate ?? 0) * 100).toLocaleString("en-US", { maximumFractionDigits: 2 })}%/month`],
                   ["Total repayable", formatUSD(loan.totalRepayable || 0)],
                   ["Total paid", formatUSD(loan.totalPaid || 0)],
                   ["Admin note", loan.adminNote || "—"],
@@ -171,9 +143,7 @@ export default function MyLoanCard({
                 </div>
               </div>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      </div>
     </div>
   );
 }

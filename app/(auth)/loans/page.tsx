@@ -24,7 +24,7 @@ export default function LoansPage() {
   const [repayId, setRepayId] = useState<string | null>(null);
   const { user } = useSelector((state: any) => state.auth);
 
-  const { data: loanData, isLoading } = useGetMyLoansQuery(undefined, {
+  const { data: loanData, isLoading, isError, refetch } = useGetMyLoansQuery(undefined, {
     pollingInterval: 15000,
   });
 
@@ -45,21 +45,25 @@ export default function LoansPage() {
       ? loans
       : loans.filter((loan: any) => loan.status === filterStatus);
 
+  const applicationBlocked = summary.canApply === false || Number(summary.activeLoans || 0) > 0 || loans.some((loan: any) => ["pending", "approved", "active", "defaulted"].includes(loan.status));
+  const visibleTab = applicationBlocked ? "list" : tab;
   const repayLoan = loans.find((loan: any) => loan._id === repayId);
+
+  if (isLoading || !loanData) return <div className="mx-auto max-w-7xl p-6 text-white/60">{isError ? <p role="alert">Could not load your loans. <button onClick={() => refetch()} className="text-emerald-300">Retry</button></p> : "Loading your loans…"}</div>;
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 py-4 pb-10 md:p-6">
       {/* ────────── Hero + KYC status ────────── */}
-      <LoanEligibilityHero
+      {!applicationBlocked && <LoanEligibilityHero
         eligible={eligible}
         isKycVerified={isKycVerified}
         maxLoan={maxLoan}
         usdtBal={usdtBal}
         onApply={() => setTab("apply")}
-      />
+      />}
 
       {/* ────────── KPI cards ────────── */}
-      <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
+      {!applicationBlocked && <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
         <LoanStatCard
           label="Active Loans"
           value={String(summary.activeLoans || 0)}
@@ -94,13 +98,15 @@ export default function LoansPage() {
           tone="green"
           onClick={() => setTab("list")}
         />
-      </div>
+      </div>}
+
+      {applicationBlocked && <div><h1 className="text-2xl font-bold text-white">My Loans</h1><p className="mt-2 text-sm text-white/50">{summary.hasOutstandingLoan ? "Repay your existing loan before applying for another loan." : "Your loan application is under review."}</p></div>}
 
       {/* ────────── Tab switch ────────── */}
-      <LoanTabSwitch tab={tab} setTab={setTab} />
+      <LoanTabSwitch tab={visibleTab} setTab={setTab} allowApply={!applicationBlocked} />
 
       {/* ────────── Apply tab ────────── */}
-      {tab === "apply" && (
+      {visibleTab === "apply" && !applicationBlocked && (
         <SmartLoanApplyForm
           eligible={eligible}
           isKycVerified={isKycVerified}
@@ -114,7 +120,7 @@ export default function LoansPage() {
       )}
 
       {/* ────────── My loans tab ────────── */}
-      {tab === "list" && (
+      {visibleTab === "list" && (
         <MyLoansPanel
           loans={loans}
           filteredLoans={filteredLoans}
@@ -122,6 +128,7 @@ export default function LoansPage() {
           setFilterStatus={setFilterStatus}
           isLoading={isLoading}
           onApply={() => setTab("apply")}
+          allowApply={!applicationBlocked}
           onRepay={setRepayId}
         />
       )}

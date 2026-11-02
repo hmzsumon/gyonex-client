@@ -36,7 +36,7 @@ export const loanApi = apiSlice.injectEndpoints({
     ───────────────────────────────────────────────────────────── */
     applyForLoan: builder.mutation<
       any,
-      { loanType: string; requestedAmount: number; repaymentPeriodDays: number }
+      { loanType: string; requestedAmount: number; repaymentPeriodDays: number; monthlyInterestPercent?: number }
     >({
       query: (body) => ({
         url: "/loans/apply",
@@ -58,7 +58,7 @@ export const loanApi = apiSlice.injectEndpoints({
 
     /* ────────── USER: repayment fee % (admin-editable) ────────── */
     getLoanRepaymentSettings: builder.query<
-      { success: boolean; settings: { repaymentFeePercent: number } },
+      { success: boolean; settings: { repaymentFeePercent: number; monthlyInterestPercent: number } },
       void
     >({
       query: () => "/loans/repayment-settings",

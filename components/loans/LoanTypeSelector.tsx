@@ -10,8 +10,10 @@ import { cn } from "./loan.helpers";
 export default function LoanTypeSelector({
   selectedType,
   onSelect,
+  monthlyInterestPercent,
 }: {
   selectedType: LoanTypeConfig;
+  monthlyInterestPercent: number;
   onSelect: (type: LoanTypeConfig) => void;
 }) {
   return (
@@ -60,7 +62,7 @@ export default function LoanTypeSelector({
               <p className="mt-1 text-[11px] text-white/45">{type.desc}</p>
               <div className="mt-3 flex flex-wrap gap-2">
                 <span className="rounded-full bg-black/25 px-2.5 py-1 text-[10px] font-bold text-white/65 ring-1 ring-white/10">
-                  {type.rate}
+                  {monthlyInterestPercent}%/mo
                 </span>
                 <span className="rounded-full bg-black/25 px-2.5 py-1 text-[10px] font-bold text-white/65 ring-1 ring-white/10">
                   max {type.maxDays} days

@@ -24,6 +24,7 @@ export function isUserKycVerified(user: any) {
       user?.kycVerified ||
       user?.isKycVerified ||
       user?.kycStatus === "approved" ||
+      user?.kycStatus === "verified" ||
       user?.kyc?.status === "approved",
   );
 }

@@ -39,7 +39,7 @@ export default function LoanEligibilityHero({
       <div className="pointer-events-none absolute -right-20 -top-20 h-52 w-52 rounded-full bg-emerald-400/10 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-20 left-10 h-44 w-44 rounded-full bg-blue-500/10 blur-3xl" />
 
-      <div className="relative grid gap-5 lg:grid-cols-[1.25fr_0.75fr] lg:items-center">
+      <div className={cn("relative grid gap-5 lg:items-center", !isKycVerified && "lg:grid-cols-[1.25fr_0.75fr]")}>
         <div>
           <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1.5 text-[11px] font-bold text-emerald-300">
             <Sparkles className="h-3.5 w-3.5" />
@@ -88,7 +88,7 @@ export default function LoanEligibilityHero({
           </div>
         </div>
 
-        <div className="rounded-[24px] border border-white/10 bg-black/20 p-4 backdrop-blur">
+        {!isKycVerified && <div className="rounded-[24px] border border-white/10 bg-black/20 p-4 backdrop-blur">
           <div className="grid h-14 w-14 place-items-center rounded-2xl bg-emerald-400/15 text-emerald-300 ring-1 ring-emerald-400/20">
             {isKycVerified ? (
               <BadgeCheck className="h-7 w-7" />
@@ -131,7 +131,7 @@ export default function LoanEligibilityHero({
               Deposit USDT <Wallet className="h-4 w-4" />
             </Link>
           )}
-        </div>
+        </div>}
       </div>
     </motion.div>
   );

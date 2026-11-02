@@ -1,7 +1,7 @@
 "use client";
 
 import { formatUSD } from "@/lib/format";
-import { useApplyForLoanMutation } from "@/redux/features/loan/loanApi";
+import { useApplyForLoanMutation, useGetLoanRepaymentSettingsQuery } from "@/redux/features/loan/loanApi";
 import { ArrowRight, Gauge, Loader2, ShieldCheck } from "lucide-react";
 import toast from "react-hot-toast";
 import { useMemo, useState } from "react";
@@ -34,14 +34,17 @@ export default function SmartLoanApplyForm({
   );
   const [applyForLoan, applyMutation] = useApplyForLoanMutation();
 
+  const { data: rateData, isLoading: rateLoading, isError: rateError, refetch: refetchRate } = useGetLoanRepaymentSettingsQuery(undefined, { refetchOnMountOrArgChange: true, pollingInterval: 30000 });
+  const monthlyInterestPercent = rateData?.settings.monthlyInterestPercent;
+  const rateReady = monthlyInterestPercent != null && !rateError;
   const amount = Number(requestedAmount) || 0;
   const days = Number(repaymentPeriodDays) || selectedType.defaultDays;
-  const interest = amount * 0.06 * (days / 30);
+  const interest = amount * ((monthlyInterestPercent ?? 0) / 100) * (days / 30);
   const total = amount + interest;
   const daily = days > 0 ? total / days : 0;
 
   const canSubmit =
-    isKycVerified && amount >= 50 && amount <= maxLoan && days >= 7;
+    rateReady && isKycVerified && amount >= 50 && amount <= maxLoan && days >= 7;
 
   const amountChips = useMemo(() => {
     const values = [0.25, 0.5, 0.75, 1].map((pct) =>
@@ -67,6 +70,7 @@ export default function SmartLoanApplyForm({
         loanType: selectedType.key,
         requestedAmount: Number(amount),
         repaymentPeriodDays: Number(days),
+        monthlyInterestPercent,
       }).unwrap();
 
       toast.success(
@@ -77,6 +81,7 @@ export default function SmartLoanApplyForm({
       setRequestedAmount("");
       window.setTimeout(() => onSuccess(), 1200);
     } catch (e: any) {
+      void refetchRate();
       toast.error(
         e?.data?.message || e?.data?.error || e?.message || "Submission failed",
         { id: toastId },
@@ -85,6 +90,8 @@ export default function SmartLoanApplyForm({
   };
 
   if (!isKycVerified) return <KycGate />;
+  if (rateLoading || !rateData) return <p className="rounded-2xl border border-white/10 p-5 text-white/60">{rateError ? "Could not load loan interest. Please refresh and try again." : "Loading current loan interest…"}</p>;
+  if (rateError || monthlyInterestPercent == null) return <p role="alert" className="p-5 text-red-300">Could not load the current interest rate. Please refresh.</p>;
 
 
   return (
@@ -104,11 +111,12 @@ export default function SmartLoanApplyForm({
                 </h2>
               </div>
               <div className="hidden rounded-full bg-emerald-400/10 px-3 py-1 text-[11px] font-bold text-emerald-300 ring-1 ring-emerald-400/20 sm:block">
-                6% / month
+                {monthlyInterestPercent}% / month
               </div>
             </div>
             <LoanTypeSelector
               selectedType={selectedType}
+              monthlyInterestPercent={monthlyInterestPercent}
               onSelect={(type) => {
                 setSelectedType(type);
                 setRepaymentPeriodDays(String(type.defaultDays));

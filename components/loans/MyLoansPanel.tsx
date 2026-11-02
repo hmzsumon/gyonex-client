@@ -14,6 +14,7 @@ export default function MyLoansPanel({
   setFilterStatus,
   isLoading,
   onApply,
+  allowApply = true,
   onRepay,
 }: {
   loans: any[];
@@ -22,6 +23,7 @@ export default function MyLoansPanel({
   setFilterStatus: (status: string) => void;
   isLoading: boolean;
   onApply: () => void;
+  allowApply?: boolean;
   onRepay: (id: string) => void;
 }) {
   return (
@@ -75,13 +77,13 @@ export default function MyLoansPanel({
           <p className="mt-2 text-sm text-white/45">
             After applying, the status will appear here as Under Review, Active, or Completed.
           </p>
-          <button
+          {allowApply && <button
             type="button"
             onClick={onApply}
             className="mt-5 rounded-2xl bg-gradient-to-r from-emerald-500 to-blue-500 px-5 py-3 text-sm font-black text-white"
           >
             Apply Loan
-          </button>
+          </button>}
         </div>
       ) : (
         <div className="space-y-3">

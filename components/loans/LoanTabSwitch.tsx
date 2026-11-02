@@ -1,6 +1,6 @@
 "use client";
 
-import { BadgeCheck, List, Plus } from "lucide-react";
+import { List, Plus } from "lucide-react";
 import { cn } from "./loan.helpers";
 
 /* ─────────────────────────────────────────────────────────────
@@ -9,14 +9,16 @@ import { cn } from "./loan.helpers";
 export default function LoanTabSwitch({
   tab,
   setTab,
+  allowApply = true,
 }: {
   tab: "apply" | "list";
+  allowApply?: boolean;
   setTab: (tab: "apply" | "list") => void;
 }) {
   return (
     <div className="flex flex-col gap-3 rounded-[24px] border border-white/10 bg-white/[0.025] p-2 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex gap-2">
-        <button
+        {allowApply && <button
           type="button"
           onClick={() => setTab("apply")}
           className={cn(
@@ -27,7 +29,7 @@ export default function LoanTabSwitch({
           )}
         >
           <Plus className="h-4 w-4" /> Apply
-        </button>
+        </button>}
         <button
           type="button"
           onClick={() => setTab("list")}
@@ -42,10 +44,6 @@ export default function LoanTabSwitch({
         </button>
       </div>
 
-      <div className="flex items-center justify-center gap-2 rounded-2xl bg-emerald-400/10 px-3 py-2 text-[11px] font-bold text-emerald-300 ring-1 ring-emerald-400/20">
-        <BadgeCheck className="h-3.5 w-3.5" />
-        KYC verified users need no extra document
-      </div>
     </div>
   );
 }

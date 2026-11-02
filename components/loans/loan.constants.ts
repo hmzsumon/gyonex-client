@@ -15,7 +15,6 @@ import {
 export type LoanTypeConfig = {
   key: string;
   label: string;
-  rate: string;
   icon: LucideIcon;
   short: string;
   color: string;
@@ -28,7 +27,6 @@ export const LOAN_TYPES: LoanTypeConfig[] = [
   {
     key: "trading",
     label: "Trading Loan",
-    rate: "6%/mo",
     icon: TrendingUp,
     short: "T",
     color: "#3B82F6",
@@ -39,7 +37,6 @@ export const LOAN_TYPES: LoanTypeConfig[] = [
   {
     key: "house",
     label: "Home Loan",
-    rate: "6%/mo",
     icon: CreditCard,
     short: "H",
     color: "#10D980",
@@ -50,7 +47,6 @@ export const LOAN_TYPES: LoanTypeConfig[] = [
   {
     key: "business",
     label: "Business Loan",
-    rate: "6%/mo",
     icon: Banknote,
     short: "B",
     color: "#8B5CF6",
@@ -61,7 +57,6 @@ export const LOAN_TYPES: LoanTypeConfig[] = [
   {
     key: "study",
     label: "Student Loan",
-    rate: "6%/mo",
     icon: FileCheck2,
     short: "S",
     color: "#06B6D4",
@@ -72,7 +67,6 @@ export const LOAN_TYPES: LoanTypeConfig[] = [
   {
     key: "land",
     label: "Land Loan",
-    rate: "6%/mo",
     icon: ShieldCheck,
     short: "L",
     color: "#F5B731",
@@ -83,7 +77,6 @@ export const LOAN_TYPES: LoanTypeConfig[] = [
   {
     key: "emergency",
     label: "Emergency",
-    rate: "6%/mo",
     icon: AlertTriangle,
     short: "E",
     color: "#F04B55",
