@@ -27,13 +27,14 @@ export default function PositionRow({
       ? "text-emerald-400 border-emerald-500/30"
       : "text-red-400 border-red-500/30";
 
-  const rawPnl = p.is_loss ? p.pnlUsd : p.profit;
+  const rawPnl = p.is_loss ? p.pnlUsd : (p.userProfitCredited ?? p.profit * 0.6);
   const fixedPnl = Number.isFinite(rawPnl as number) ? (rawPnl as number) : 0;
 
   const pnlTone = fixedPnl >= 0 ? "text-emerald-400" : "text-red-400";
 
   /* prefer explicit closePrice then lastPrice then entry */
   const fixedClose =
+    p.closePrice ??
     (p as any).maniClosePrice ??
     (Number.isFinite(p.maniClosePrice) ? p.lastPrice : undefined) ??
     p.entryPrice;

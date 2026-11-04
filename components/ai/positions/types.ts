@@ -14,6 +14,7 @@ export type Position = {
   s: string;
   status: "open" | "closed";
   profit: number;
+  userProfitCredited?: number;
   maniClosePrice?: number;
   is_loss: boolean;
   stopLoss?: number;

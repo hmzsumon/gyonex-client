@@ -22,7 +22,8 @@ function toUiPosition(p: any): Position {
     pnlUsd: Number(p.unrealizedPnl ?? p.pnl ?? 0),
     tag: p.takeProfit ? "TP" : null,
     status: p.status || "open",
-    profit: Number(p.takeProfit ?? 0),
+    profit: Number(p.closeReason === "manual" ? (p.pnl ?? 0) : (p.takeProfit ?? p.pnl ?? 0)),
+    userProfitCredited: Number.isFinite(p.userProfitCredited) ? Number(p.userProfitCredited) : undefined,
     closePrice: Number.isFinite(p.closePrice)
       ? Number(p.closePrice)
       : undefined,

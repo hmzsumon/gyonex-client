@@ -44,11 +44,12 @@ export default function ClosedDetailsDrawer({
 
   // only profit is shared; loss হলে ইউজার ক্রেডিট 0
   const profit = Math.max(0, pnl);
-  const userShare = profit * USER_PROFIT_RATE; // 60%
-  const platformShare = profit - userShare; // 40%
+  const userShare = position.userProfitCredited ?? profit * USER_PROFIT_RATE; // 60%
+  const platformShare = userShare * (0.4 / 0.6); // 40%
 
   /* prefer explicit closePrice then lastPrice then entry */
   const closePx =
+    position.closePrice ??
     (position as any).maniClosePrice ??
     (Number.isFinite(position.maniClosePrice)
       ? position.maniClosePrice
@@ -110,7 +111,7 @@ export default function ClosedDetailsDrawer({
               ) : (
                 <div>
                   <div className="mb-2 text-xs text-neutral-400">
-                    Profit split: <b>60%</b> to user, <b>40%</b> to platform
+                    User share: <b>60%</b>, subject to the account profit cap.
                   </div>
 
                   <Row k="Platform share (40%)">
@@ -119,7 +120,7 @@ export default function ClosedDetailsDrawer({
                     </span>
                   </Row>
 
-                  <Row k="Credited to main balance (60%)">
+                  <Row k="Credited to main balance">
                     <span className="font-semibold text-emerald-400">
                       {fmt2(userShare)} USDT
                     </span>
